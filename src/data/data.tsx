@@ -1,35 +1,42 @@
-import {  BookOpen, Lightbulb, Users } from "lucide-react";
+import { BookOpen, Lightbulb, Users, GraduationCap } from "lucide-react";
 
 export const storyTypeLabels = {
-  anecdote: "Real-Life Anecdote",
-  fictional: "Fictional Story", 
-  mnemonic: "Mnemonic/Acronym"
+  Tutorial: "Tutorial",
+  Analogy: "Analogy",
+  Mnemonic: "Mnemonic",
+  Story: "Story"
 };
 
-export  const categories  = [
-    "All", "Algorithms", "Data Structures", "Design Patterns", "JavaScript", "Python",
-    "Java", "Database", "APIs", "Frontend", "Backend", "DevOps", "Testing"
-  ];
-  
-  export const storyTypes = [
-    { 
-      id: "anecdote", 
-      title: "Real-Life Anecdote", 
-      description: "Share a true story from your coding experience",
-      icon: Users
-    },
-    { 
-      id: "fictional", 
-      title: "Fictional Story", 
-      description: "Create an imaginative tale to explain concepts",
-      icon: BookOpen
-    },
-    { 
-      id: "mnemonic", 
-      title: "Mnemonic/Acronym", 
-      description: "Help others remember with clever memory aids",
-      icon: Lightbulb
-    }
-  ];
+export const categories = [
+  "All", "Algorithms", "Data Structures", "Design Patterns", "JavaScript", "Python",
+  "Java", "Database", "APIs", "Frontend", "Backend", "DevOps", "Testing"
+];
+
+export const storyTypes = [
+  {
+    id: "Tutorial",
+    title: "Tutorial",
+    description: "Step-by-step teaching guide",
+    icon: GraduationCap,
+  },
+  {
+    id: "Analogy",
+    title: "Analogy",
+    description: "Explain concepts through comparisons",
+    icon: Lightbulb,
+  },
+  {
+    id: "Mnemonic",
+    title: "Mnemonic",
+    description: "Memory aids, acronyms, and tricks",
+    icon: Users,
+  },
+  {
+    id: "Story",
+    title: "Story",
+    description: "Narrative: anecdote, satire, memoir, fictional",
+    icon: BookOpen,
+  },
+];
 
 

@@ -3,6 +3,10 @@
 // ============================================================================
 
 export class Store {
+    key: string;
+    defaults: any;
+    storage: Storage;
+
     constructor({ key = '', defaults = {}, storage = localStorage } = {}) {
       this.key = key;
       this.defaults = { ...defaults };
@@ -24,8 +28,8 @@ export class Store {
     }
   
     /** Save full preferences (merged with defaults). */
-    save() {
-      const toSave = { ...this.defaults, ...( || {}) };
+    save(data = {}) {
+      const toSave = { ...this.defaults, ...data };
       try {
         this.storage.setItem(this.key, JSON.stringify(toSave));
       } catch (err) {
@@ -51,20 +55,20 @@ export class Store {
     }
   
     /** Read a single key, with optional fallback. */
-    get(k, fallback = undefined) {
+    get(k: string, fallback = undefined) {
       const all = this.load();
       return k in all ? all[k] : fallback;
     }
   
     /** Create or update one or more keys (partial update). */
-    patch(partial) {
+    patch(partial: any) {
       const next = { ...this.load(), ...(partial || {}) };
       this.save(next);
       return next;
     }
   
     /** Delete a specific key. */
-    delete(k) {
+    delete(k: string) {
       const current = this.load();
       if (k in current) {
         delete current[k];
@@ -74,10 +78,9 @@ export class Store {
     }
   
     /** Replace entire preferences object (overwrites existing). */
-    update(new = {}) {
-      const toSave = { ...this.defaults, ...new };
+    update(newData = {}) {
+      const toSave = { ...this.defaults, ...newData };
       this.save(toSave);
       return toSave;
     }
   }
-  

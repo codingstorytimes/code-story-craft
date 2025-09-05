@@ -1,3 +1,5 @@
+import { EnumStoryType } from "./story";
+
 export interface Story {
     id: string;
     title: string;
@@ -5,7 +7,7 @@ export interface Story {
     excerpt: string;
     author: string;
     category: string;
-    storyType: "anecdote" | "fictional" | "mnemonic";
+    storyType: EnumStoryType;
     readTime: string;
     likes: number;
     comments: number;

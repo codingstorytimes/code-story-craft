@@ -1,4 +1,5 @@
 import { Story } from "@/common/types/types";
+import { EnumStoryType } from "@/common/types/story";
 
 
 
@@ -52,7 +53,7 @@ export const sampleStories: Story[] = [
       excerpt: "Picture this: me, a junior developer, staring at a function that called itself. My first thought? 'This is broken. Functions can't call themselves... can they?'",
       author: "Sarah Chen",
       category: "Algorithms",
-      storyType: "anecdote",
+    storyType: EnumStoryType.Story,
       readTime: "4 min read",
       likes: 127,
       comments: 23,
@@ -125,7 +126,7 @@ export const sampleStories: Story[] = [
       excerpt: "Once upon a time, in the chaotic kingdom of Codeland, there lived a young developer whose codebase was a tangled mess. Then came five superheroes...",
       author: "Marcus Rodriguez",
       category: "Design Patterns",
-      storyType: "fictional",
+    storyType: EnumStoryType.Analogy,
       readTime: "6 min read", 
       likes: 203,
       comments: 45,
@@ -184,7 +185,7 @@ export const sampleStories: Story[] = [
       excerpt: "Remembering HTTP status codes used to be impossible for me. Then my friend compared them to restaurant experiences, and everything clicked.",
       author: "Alex Kim",
       category: "APIs",
-      storyType: "mnemonic",
+      storyType: EnumStoryType.Mnemonic,
       readTime: "3 min read",
       likes: 89,
       comments: 12,
@@ -265,7 +266,7 @@ export const sampleStories: Story[] = [
       excerpt: "Three months into my first job, I learned about Git branches the hard way. Let me tell you about the day I accidentally created a parallel universe in our codebase.",
       author: "Jamie Foster",
       category: "DevOps",
-      storyType: "anecdote",
+      storyType: EnumStoryType.Tutorial,
       readTime: "5 min read",
       likes: 156,
       comments: 31,
@@ -335,7 +336,7 @@ export const sampleStories: Story[] = [
       excerpt: "Understanding Big O notation clicked for me when I imagined algorithms as different types of restaurants trying to serve customers.",
       author: "David Park",
       category: "Algorithms",
-      storyType: "fictional",
+      storyType: EnumStoryType.Story,
       readTime: "7 min read",
       likes: 234,
       comments: 52,
