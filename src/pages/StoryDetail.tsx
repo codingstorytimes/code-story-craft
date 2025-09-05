@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Heart, MessageCircle, Share2, BookmarkPlus, Clock, User, ArrowLeft } from "lucide-react";
+import { Heart, MessageCircle, Share2, BookmarkPlus, Clock, User, ArrowLeft, Edit } from "lucide-react";
 import { useStories } from "@/hooks/useStories";
 import { useToast } from "@/hooks/use-toast";
 import { storyTypeLabels } from "@/data/data";
@@ -107,34 +107,33 @@ export default function StoryDetail() {
               </div>
             </div>
 
-            {/* Action Buttons */}
-            <div className="flex items-center gap-2">
-              <Button variant="ghost" size="sm" onClick={handleLike}>
-                <Heart className="w-4 h-4 mr-1" />
-                {story.likes}
-              </Button>
-              <Button variant="ghost" size="sm" onClick={handleShare}>
-                <Share2 className="w-4 h-4" />
-              </Button>
-              <Button variant="ghost" size="sm" onClick={handleBookmark}>
-                <BookmarkPlus className="w-4 h-4" />
-              </Button>
-            </div>
+             {/* Action Buttons */}
+             <div className="flex items-center gap-2">
+               <Link to={`/edit/${story.id}`}>
+                 <Button variant="outline" size="sm">
+                   <Edit className="w-4 h-4 mr-1" />
+                   Edit
+                 </Button>
+               </Link>
+               <Button variant="ghost" size="sm" onClick={handleLike}>
+                 <Heart className="w-4 h-4 mr-1" />
+                 {story.likes}
+               </Button>
+               <Button variant="ghost" size="sm" onClick={handleShare}>
+                 <Share2 className="w-4 h-4" />
+               </Button>
+               <Button variant="ghost" size="sm" onClick={handleBookmark}>
+                 <BookmarkPlus className="w-4 h-4" />
+               </Button>
+             </div>
           </div>
         </div>
 
         {/* Story Content */}
         <Card className="mb-8">
-          <RichTextViewer className="p-8">
-            <div className="prose prose-lg max-w-none">
-              <div 
-                className="text-foreground leading-relaxed"
-                dangerouslySetInnerHTML={{ 
-                  __html: story.content.replace(/\n/g, '<br/>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') 
-                }}
-              />
-            </div>
-          </RichTextViewer>
+          <div className="p-8">
+            <RichTextViewer content={story.content} className="prose prose-lg max-w-none" />
+          </div>
         </Card>
 
         {/* Tags */}

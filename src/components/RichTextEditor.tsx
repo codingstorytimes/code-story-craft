@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState, useRef } from 'react';
+import { useCallback, useMemo, useState, useRef, useEffect } from 'react';
 import { createEditor, Descendant, Element, Text, Transforms, Editor, Range } from 'slate';
 import { Slate, Editable, withReact, ReactEditor } from 'slate-react';
 import { withHistory } from 'slate-history';
@@ -6,7 +6,18 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Bold, Italic, Code, Link, FileText, Plus, Hash } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Bold, Italic, Code, Link, FileText, Plus, Hash, Eye, History, Save } from "lucide-react";
+import StoryAutocomplete from "@/components/StoryAutocomplete";
+import StoryPreview from "@/components/StoryPreview";
+import EditorVersionControl from "@/components/EditorVersionControl";
+
+interface Version {
+  id: string;
+  content: string;
+  timestamp: Date;
+  description: string;
+}
 
 interface RichTextEditorProps {
   value: string;
@@ -14,6 +25,11 @@ interface RichTextEditorProps {
   placeholder?: string;
   className?: string;
   onStoryEmbed?: (storyId: string) => void;
+  title?: string;
+  category?: string;
+  storyType?: string;
+  tags?: string[];
+  authorName?: string;
 }
 
 // Custom types
@@ -48,12 +64,26 @@ const initialValue: Descendant[] = [
   } as CustomElement,
 ];
 
-export default function RichTextEditor({ value, onChange, placeholder, className, onStoryEmbed }: RichTextEditorProps) {
+export default function RichTextEditor({ 
+  value, 
+  onChange, 
+  placeholder, 
+  className, 
+  onStoryEmbed,
+  title = "",
+  category = "",
+  storyType = "",
+  tags = [],
+  authorName = "Anonymous"
+}: RichTextEditorProps) {
   const editor = useMemo(() => withHistory(withReact(createEditor())), []);
   const [slateValue, setSlateValue] = useState<Descendant[]>(initialValue);
   const [showEmbedDialog, setShowEmbedDialog] = useState(false);
   const [embedStoryId, setEmbedStoryId] = useState("");
   const [embedType, setEmbedType] = useState<'mini' | 'inline' | 'full'>('inline');
+  const [versions, setVersions] = useState<Version[]>([]);
+  const [activeTab, setActiveTab] = useState<'write' | 'preview'>('write');
+  const [isAutoSaving, setIsAutoSaving] = useState(false);
 
   const handleChange = useCallback((newValue: Descendant[]) => {
     setSlateValue(newValue);
@@ -110,6 +140,43 @@ export default function RichTextEditor({ value, onChange, placeholder, className
     onStoryEmbed?.(embedStoryId);
   };
 
+  const handleStorySelect = (storyId: string, storyTitle: string) => {
+    setEmbedStoryId(storyId);
+  };
+
+  const saveVersion = (description: string) => {
+    const newVersion: Version = {
+      id: Date.now().toString(),
+      content: value,
+      timestamp: new Date(),
+      description,
+    };
+    setVersions(prev => [newVersion, ...prev].slice(0, 10)); // Keep last 10 versions
+  };
+
+  const restoreVersion = (version: Version) => {
+    onChange(version.content);
+    // Convert string content back to slate format
+    const newSlateValue = value.split('\n').map(line => ({
+      type: 'paragraph' as const,
+      children: [{ text: line }],
+    }));
+    setSlateValue(newSlateValue);
+  };
+
+  // Auto-save functionality
+  useEffect(() => {
+    if (!value) return;
+    
+    const autoSaveTimer = setTimeout(() => {
+      setIsAutoSaving(true);
+      saveVersion(`Auto-save ${new Date().toLocaleTimeString()}`);
+      setTimeout(() => setIsAutoSaving(false), 1000);
+    }, 5000); // Auto-save every 5 seconds
+
+    return () => clearTimeout(autoSaveTimer);
+  }, [value]);
+
   const renderElement = useCallback((props: any) => {
     switch (props.element.type) {
       case 'code-block':
@@ -158,9 +225,24 @@ export default function RichTextEditor({ value, onChange, placeholder, className
   }, []);
 
   return (
-    <div className={`border border-border rounded-md ${className}`}>
-      {/* Toolbar */}
-      <div className="border-b border-border p-2 flex gap-1 flex-wrap">
+    <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'write' | 'preview')} className={className}>
+      <div className="border border-border rounded-md">
+      {/* Tab Headers */}
+      <TabsList className="grid w-full grid-cols-2 mb-0">
+        <TabsTrigger value="write" className="flex items-center gap-2">
+          <Hash className="w-4 h-4" />
+          Write
+        </TabsTrigger>
+        <TabsTrigger value="preview" className="flex items-center gap-2">
+          <Eye className="w-4 h-4" />
+          Preview
+        </TabsTrigger>
+      </TabsList>
+
+      <TabsContent value="write" className="mt-0">
+        {/* Toolbar */}
+        <div className="border-b border-border p-2 flex gap-1 flex-wrap justify-between">
+          <div className="flex gap-1 flex-wrap">
         <Button
           type="button"
           variant="ghost"
@@ -212,58 +294,97 @@ export default function RichTextEditor({ value, onChange, placeholder, className
           <Hash className="w-4 h-4" />
         </Button>
         
-        <Dialog open={showEmbedDialog} onOpenChange={setShowEmbedDialog}>
-          <DialogTrigger asChild>
-            <Button type="button" variant="ghost" size="sm">
-              <Plus className="w-4 h-4" />
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Embed Story</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4">
-              <div>
-                <label className="text-sm font-medium">Story ID</label>
-                <Input
-                  value={embedStoryId}
-                  onChange={(e) => setEmbedStoryId(e.target.value)}
-                  placeholder="Enter story ID to embed..."
-                />
-              </div>
-              <div>
-                <label className="text-sm font-medium">Display Type</label>
-                <Select value={embedType} onValueChange={(value: 'mini' | 'inline' | 'full') => setEmbedType(value)}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="mini">Mini Card</SelectItem>
-                    <SelectItem value="inline">Inline Preview</SelectItem>
-                    <SelectItem value="full">Full Content</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <Button onClick={insertEmbed} className="w-full">
-                Insert Embed
-              </Button>
-            </div>
-          </DialogContent>
-        </Dialog>
-      </div>
+            <Dialog open={showEmbedDialog} onOpenChange={setShowEmbedDialog}>
+              <DialogTrigger asChild>
+                <Button type="button" variant="ghost" size="sm">
+                  <Plus className="w-4 h-4" />
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Embed Story</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4">
+                  <div>
+                    <label className="text-sm font-medium">Select Story</label>
+                    <StoryAutocomplete 
+                      onSelect={handleStorySelect}
+                      placeholder="Search and select a story to embed..."
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium">Display Type</label>
+                    <Select value={embedType} onValueChange={(value: 'mini' | 'inline' | 'full') => setEmbedType(value)}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="mini">Mini Card</SelectItem>
+                        <SelectItem value="inline">Inline Preview</SelectItem>
+                        <SelectItem value="full">Full Content</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <Button onClick={insertEmbed} className="w-full" disabled={!embedStoryId}>
+                    Insert Embed
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
+          </div>
 
-      {/* Editor */}
-      <div className="p-3">
-        <Slate editor={editor} initialValue={slateValue} onChange={handleChange}>
-          <Editable
-            renderElement={renderElement}
-            renderLeaf={renderLeaf}
-            placeholder={placeholder}
-            className="min-h-[300px] text-base leading-relaxed outline-none"
-            spellCheck
-          />
-        </Slate>
+          {/* Version Control */}
+          <div className="flex items-center gap-2">
+            <EditorVersionControl
+              versions={versions}
+              currentVersion={value}
+              onRestore={restoreVersion}
+              onSaveVersion={saveVersion}
+            />
+            {isAutoSaving && (
+              <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                <Save className="w-3 h-3 animate-spin" />
+                Saving...
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Editor */}
+        <div className="p-3">
+          <Slate editor={editor} initialValue={slateValue} onChange={handleChange}>
+            <Editable
+              renderElement={renderElement}
+              renderLeaf={renderLeaf}
+              placeholder={placeholder}
+              className="min-h-[300px] text-base leading-relaxed outline-none"
+              spellCheck
+            />
+          </Slate>
+        </div>
+      </TabsContent>
+
+      <TabsContent value="preview" className="mt-0">
+        <div className="p-4 border-t">
+          {title || category || storyType || tags.length > 0 ? (
+            <StoryPreview
+              title={title || "Untitled Story"}
+              content={value}
+              category={category || "Uncategorized"}
+              storyType={storyType || "Story"}
+              tags={tags}
+              readTime="5 min read"
+              authorName={authorName}
+            />
+          ) : (
+            <div className="text-center text-muted-foreground py-12">
+              <Eye className="w-12 h-12 mx-auto mb-3 opacity-50" />
+              <p>Add a title and content to see the preview</p>
+            </div>
+          )}
+        </div>
+      </TabsContent>
       </div>
-    </div>
+    </Tabs>
   );
 }

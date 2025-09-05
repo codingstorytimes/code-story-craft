@@ -119,8 +119,8 @@ const featuredStories = getFeaturedStories()
           <div className="grid md:grid-cols-3 gap-6">
             {featuredStories.map((story, index) => {
               const {id} = story
-              return (<Link to={`/story/${id}`}>
-              <Card key={index} className="group hover:shadow-hover transition-all duration-300 hover:-translate-y-1">
+              return (<Link key={id} to={`/story/${id}`}>
+              <Card className="group hover:shadow-hover transition-all duration-300 hover:-translate-y-1">
                 <CardContent className="p-6">
                   <Badge variant="secondary" className="mb-3">{story.category}</Badge>
                   <h3 className="font-semibold text-lg mb-3 group-hover:text-primary transition-colors">

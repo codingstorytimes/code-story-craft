@@ -1,16 +1,20 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
 import Layout from "@/components/Layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { PenTool, BookOpen, Lightbulb, Users, X } from "lucide-react";
+import { PenTool, BookOpen, Lightbulb, Users, X, Edit } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import RichTextEditor from "@/components/RichTextEditor";
-import { storyTypes ,categories} from "@/data/data";
+import { storyTypes, categories} from "@/data/data";
+import { useStories } from "@/hooks/useStories";
 
 
 export default function Create() {
+  const { id } = useParams();
+  const { getStoryById } = useStories();
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [category, setCategory] = useState("");
@@ -18,6 +22,21 @@ export default function Create() {
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState("");
   const { toast } = useToast();
+  const isEditing = Boolean(id);
+
+  // Load existing story if editing
+  useEffect(() => {
+    if (id) {
+      const story = getStoryById(id);
+      if (story) {
+        setTitle(story.title);
+        setContent(story.content);
+        setCategory(story.category);
+        setStoryType(story.storyType);
+        setTags(story.tags);
+      }
+    }
+  }, [id, getStoryById]);
 
   const handleAddTag = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && tagInput.trim() && !tags.includes(tagInput.trim())) {
@@ -44,8 +63,10 @@ export default function Create() {
 
     // Here you would typically submit to an API
     toast({
-      title: "Story Published! 🎉",
-      description: "Your story has been shared with the community",
+      title: isEditing ? "Story Updated! ✨" : "Story Published! 🎉",
+      description: isEditing 
+        ? "Your story has been updated successfully" 
+        : "Your story has been shared with the community",
     });
 
     // Reset form
@@ -62,12 +83,19 @@ export default function Create() {
         <div className="absolute inset-0 bg-black/20"></div>
         <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
           <div className="text-center">
-            <PenTool className="w-16 h-16 text-white mx-auto mb-4" />
+            {isEditing ? (
+              <Edit className="w-16 h-16 text-white mx-auto mb-4" />
+            ) : (
+              <PenTool className="w-16 h-16 text-white mx-auto mb-4" />
+            )}
             <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
-              Share Your Story
+              {isEditing ? "Edit Your Story" : "Share Your Story"}
             </h1>
             <p className="text-xl text-white/90 max-w-2xl mx-auto">
-              Help fellow developers learn through the power of storytelling
+              {isEditing 
+                ? "Update your story to share new insights with the community" 
+                : "Help fellow developers learn through the power of storytelling"
+              }
             </p>
           </div>
         </div>
@@ -150,6 +178,11 @@ export default function Create() {
                   onChange={setContent}
                   placeholder="Tell your story... Be creative, be helpful, be memorable!"
                   className="w-full"
+                  title={title}
+                  category={category}
+                  storyType={storyType}
+                  tags={tags}
+                  authorName="You"
                 />
                 <p className="text-sm text-muted-foreground mt-2">
                   Tip: Use the formatting tools above for better readability
@@ -226,7 +259,7 @@ export default function Create() {
               Save Draft
             </Button>
             <Button type="submit" variant="hero" size="lg">
-              Publish Story
+              {isEditing ? "Update Story" : "Publish Story"}
             </Button>
           </div>
         </form>
