@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { PenTool, Edit, Eye, Hash, X } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import ContentEditor from "@/components/Editor/ContentEditor";
+import SlateEditor from "@/components/Editor/SlateEditor";
 import { StoryPreview } from "@/components/Editor/StoryPreview";
 import { storyTypes, categories } from "@/data/data";
 import { useStories } from "@/hooks/useStories";
@@ -251,10 +251,24 @@ export default function Create() {
                   </TabsList>
 
                   <TabsContent value="write" className="mt-0">
-                    <ContentEditor
-                      value={content}
+                    <SlateEditor
+                      story={isEditing ? { 
+                        id: id!, 
+                        title, 
+                        content, 
+                        category, 
+                        storyType: storyType as EnumStoryType,
+                        tags,
+                        excerpt: "",
+                        author: { id: userId, name: "You" },
+                        readTime: "5 min read",
+                        createdAt: new Date().toISOString(),
+                        updatedAt: new Date().toISOString(),
+                        isEmbeddable: false,
+                        likes: 0,
+                        comments: 0
+                      } : undefined}
                       onChange={setContent}
-                      placeholder="Tell your story... Be creative, be helpful, be memorable!"
                       userId={userId}
                     />
                   </TabsContent>

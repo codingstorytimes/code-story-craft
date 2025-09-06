@@ -131,10 +131,10 @@ export default function ContentEditor({
   useEffect(() => {
     if (!value) return;
     const lines = value.split("\n");
-    const newSlateValue = lines.map((line) => ({
+    const newSlateValue: Descendant[] = lines.map((line) => ({
       type: ComponentType.Paragraph,
       children: [{ text: line }],
-    }));
+    } as Descendant));
     setSlateValue(newSlateValue);
   }, [value]);
 

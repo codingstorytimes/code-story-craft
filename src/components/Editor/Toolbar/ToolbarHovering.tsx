@@ -4,29 +4,30 @@ import ReactDOM from "react-dom";
 import { Editor, Range } from "slate";
 import { ReactEditor, useSlate } from "slate-react";
 
-import BoldButton from "../Buttons/BoldButton";
-import ItalicButton from "../Buttons/ItalicButton";
-import UnderlinedButton from "../Buttons/UnderlinedButton";
-import StrikethroughButton from "../Buttons/StrikethroughButton";
-import CodeButton from "../Buttons/CodeButton";
-import { Bold, Italic, UnderlineIcon, Code } from "lucide-react";
-import MarkButton from "./MarkButtons";
+// Removed missing imports - using inline buttons instead
+import { Bold, Italic, Underline, Code, Strikethrough } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { isMarkActive, toggleMark } from "../editorUtils";
 
-const Portal = ({ children }) => {
+const Portal = ({ children }: { children: React.ReactNode }) => {
   return ReactDOM.createPortal(children, document.body);
 };
 
 /**
  * A hovering toolbar that appears over selected text.
  */
+interface HoveringToolbarProps {
+  children?: React.ReactNode;
+  className?: string;
+  [key: string]: any;
+}
+
 export default function HoveringToolbar({
   children,
   className = "",
   ...props
-}) {
-  const ref = useRef();
+}: HoveringToolbarProps) {
+  const ref = useRef<HTMLDivElement>(null);
   const editor = useSlate();
 
   useEffect(() => {
@@ -41,19 +42,23 @@ export default function HoveringToolbar({
       Range.isCollapsed(selection) ||
       Editor.string(editor, selection) === ""
     ) {
-      el.removeAttribute("style");
+      if (el) el.removeAttribute("style");
       return;
     }
 
     const domSelection = window.getSelection();
+    if (!domSelection || domSelection.rangeCount === 0) return;
+    
     const domRange = domSelection.getRangeAt(0);
     const rect = domRange.getBoundingClientRect();
 
-    el.style.opacity = 1;
-    el.style.top = `${rect.top + window.pageYOffset - el.offsetHeight - 4}px`;
-    el.style.left = `${
-      rect.left + window.pageXOffset - el.offsetWidth / 2 + rect.width / 2
-    }px`;
+    if (el) {
+      el.style.opacity = "1";
+      el.style.top = `${rect.top + window.pageYOffset - el.offsetHeight - 4}px`;
+      el.style.left = `${
+        rect.left + window.pageXOffset - el.offsetWidth / 2 + rect.width / 2
+      }px`;
+    }
   });
 
   return (
@@ -108,9 +113,9 @@ export default function HoveringToolbar({
                 e.preventDefault();
                 toggleMark(editor, "underline");
               }}
-            >
-              <UnderlineIcon className="w-4 h-4" />
-            </Button>
+              >
+                <Underline className="w-4 h-4" />
+              </Button>
             <Button
               type="button"
               variant="ghost"
@@ -123,8 +128,18 @@ export default function HoveringToolbar({
             >
               <Code className="w-4 h-4" />
             </Button>
-
-            <StrikethroughButton />
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className={isMarkActive(editor, "strikethrough") ? "bg-accent" : ""}
+              onMouseDown={(e) => {
+                e.preventDefault();
+                toggleMark(editor, "strikethrough");
+              }}
+            >
+              <Strikethrough className="w-4 h-4" />
+            </Button>
           </>
         )}
         {children}

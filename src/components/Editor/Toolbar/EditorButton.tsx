@@ -1,35 +1,26 @@
-import { cn } from "@/common/utils";
-import { Button } from "@/components/ui/button";
 import React from "react";
+import { Button } from "@/components/ui/button";
 
-type EditorButtonProps = {
-  onClick: (e: React.MouseEvent<HTMLButtonElement>) => void;
-  isActive?: boolean;
+interface EditorButtonProps {
+  onMouseDown: (e: React.MouseEvent) => void;
+  active?: boolean;
   children: React.ReactNode;
   className?: string;
-  title?: string;
-};
+}
 
-export default function EditorButton({
-  onClick,
-  isActive = false,
-  children,
-  className = "",
-  title,
+export default function EditorButton({ 
+  onMouseDown, 
+  active, 
+  children, 
+  className = "" 
 }: EditorButtonProps) {
   return (
     <Button
       type="button"
-      title={title}
-      onMouseDown={(e) => {
-        e.preventDefault();
-        onClick(e);
-      }}
-      className={cn(
-        "p-1.5 rounded text-sm hover:bg-muted transition-colors",
-        isActive && "bg-accent",
-        className
-      )}
+      variant="ghost"
+      size="sm"
+      className={`${active ? "bg-accent" : ""} ${className}`}
+      onMouseDown={onMouseDown}
     >
       {children}
     </Button>

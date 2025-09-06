@@ -1,26 +1,22 @@
-import { Editor } from "slate";
-import { Button } from "@/components/ui/button";
-import { CustomText } from "@/common/types/slate";
-
 import React from "react";
+import { useSlate } from "slate-react";
+import { Button } from "@/components/ui/button";
 import { isMarkActive, toggleMark } from "../editorUtils";
-import { cn } from "@/common/utils";
 
 interface MarkButtonProps {
-  editor: Editor;
-  format: keyof CustomText;
+  format: keyof import("@/common/types/slate").CustomText;
   icon: React.ReactNode;
 }
 
-export default function MarkButton({ editor, format, icon }: MarkButtonProps) {
-  const active = isMarkActive(editor, format);
-
+export default function MarkButton({ format, icon }: MarkButtonProps) {
+  const editor = useSlate();
+  
   return (
     <Button
       type="button"
       variant="ghost"
       size="sm"
-      className={cn(active && "bg-accent")}
+      className={isMarkActive(editor, format) ? "bg-accent" : ""}
       onMouseDown={(e) => {
         e.preventDefault();
         toggleMark(editor, format);
