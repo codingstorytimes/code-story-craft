@@ -5,14 +5,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { PenTool, Edit, Eye, Hash, X } from "lucide-react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { PenTool, BookOpen, Lightbulb, Users, X, Edit } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import ContentEditor from "@/components/Editor/ContentEditor";
-import { StoryPreview } from "@/components/Editor/StoryPreview";
+import RichTextEditor from "@/components/Editor/RichTextEditor";
 import { storyTypes, categories } from "@/data/data";
 import { useStories } from "@/hooks/useStories";
-import { EnumStoryType } from "@/common/types/types";
 
 export default function Create() {
   const { id } = useParams();
@@ -23,12 +20,8 @@ export default function Create() {
   const [storyType, setStoryType] = useState("");
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState("");
-  const [activeTab, setActiveTab] = useState<"write" | "preview">("write");
   const { toast } = useToast();
   const isEditing = Boolean(id);
-
-  // 🔒 Hardcoded or retrieved from auth context in production app
-  const userId = "codingstorytime";
 
   // Load existing story if editing
   useEffect(() => {
@@ -71,7 +64,7 @@ export default function Create() {
       return;
     }
 
-    // Normally you’d call an API here
+    // Here you would typically submit to an API
     toast({
       title: isEditing ? "Story Updated! ✨" : "Story Published! 🎉",
       description: isEditing
@@ -85,13 +78,10 @@ export default function Create() {
     setCategory("");
     setStoryType("");
     setTags([]);
-    setTagInput("");
-    setActiveTab("write");
   };
 
   return (
     <Layout>
-      {/* Hero */}
       <div className="bg-gradient-hero relative overflow-hidden">
         <div className="absolute inset-0 bg-black/20"></div>
         <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
@@ -113,7 +103,6 @@ export default function Create() {
         </div>
       </div>
 
-      {/* Form */}
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <form onSubmit={handleSubmit} className="space-y-8">
           {/* Story Type Selection */}
@@ -153,7 +142,6 @@ export default function Create() {
               <CardTitle>Story Details</CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
-              {/* Title */}
               <div>
                 <label
                   htmlFor="title"
@@ -170,7 +158,6 @@ export default function Create() {
                 />
               </div>
 
-              {/* Category */}
               <div>
                 <label
                   htmlFor="category"
@@ -192,7 +179,31 @@ export default function Create() {
                   ))}
                 </select>
               </div>
-              {/* Tags */}
+
+              <div>
+                <label
+                  htmlFor="content"
+                  className="block text-sm font-medium mb-2"
+                >
+                  Your Story *
+                </label>
+                <RichTextEditor
+                  value={content}
+                  onChange={setContent}
+                  placeholder="Tell your story... Be creative, be helpful, be memorable!"
+                  className="w-full"
+                  title={title}
+                  category={category}
+                  storyType={storyType}
+                  tags={tags}
+                  authorName="You"
+                />
+                <p className="text-sm text-muted-foreground mt-2">
+                  Tip: Use the formatting tools above for better readability
+                </p>
+              </div>
+
+              {/* tags */}
               <div>
                 <label
                   htmlFor="tags"
@@ -218,80 +229,6 @@ export default function Create() {
                     </Badge>
                   ))}
                 </div>
-              </div>
-
-              {/* Content Tabs */}
-              <div>
-                <label
-                  htmlFor="content"
-                  className="block text-sm font-medium mb-2"
-                >
-                  Your Story *
-                </label>
-                <Tabs
-                  value={activeTab}
-                  onValueChange={(value) =>
-                    setActiveTab(value as "write" | "preview")
-                  }
-                  className="w-full"
-                >
-                  <TabsList className="grid w-full grid-cols-2 mb-4">
-                    <TabsTrigger
-                      value="write"
-                      className="flex items-center gap-2"
-                    >
-                      <Hash className="w-4 h-4" /> Write
-                    </TabsTrigger>
-                    <TabsTrigger
-                      value="preview"
-                      className="flex items-center gap-2"
-                    >
-                      <Eye className="w-4 h-4" /> Preview
-                    </TabsTrigger>
-                  </TabsList>
-
-                  <TabsContent value="write" className="mt-0">
-                    <ContentEditor
-                      value={content}
-                      onChange={setContent}
-                      placeholder="Tell your story... Be creative, be helpful, be memorable!"
-                      userId={userId}
-                    />
-                  </TabsContent>
-
-                  <TabsContent value="preview" className="mt-0">
-                    <div className="p-4 border rounded-md">
-                      {title || category || storyType || tags.length > 0 ? (
-                        <StoryPreview
-                          story={{
-                            id: "preview-temp",
-                            title: title || "Untitled Story",
-                            content: content,
-                            excerpt: "",
-                            author: { id: "preview-author", name: "You" },
-                            category: category || "Uncategorized",
-                            storyType: storyType as EnumStoryType,
-                            tags: tags || [],
-                            readTime: "5 min read",
-                            createdAt: new Date().toISOString(),
-                            updatedAt: new Date().toISOString(),
-                            isEmbeddable: false,
-                            likes: 0,
-                            comments: 0,
-                          }}
-                        />
-                      ) : (
-                        <div className="text-center text-muted-foreground py-12">
-                          <Eye className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                          <p>Add a title and content to see the preview</p>
-                        </div>
-                      )}
-                    </div>
-                  </TabsContent>
-                </Tabs>
-                <p className="text-sm text-muted-foreground mt-2">
-                  Tip: Use the formatting tools above for better readability
-                </p>
               </div>
             </CardContent>
           </Card>

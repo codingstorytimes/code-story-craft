@@ -3,38 +3,42 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { BookOpen, Heart, MessageCircle, Clock, User } from "lucide-react";
 import { Link } from "react-router-dom";
+import { ICodingStory } from "@/common/types/types";
+import { cn } from "@/common/utils";
 
-interface StoryCardProps {
-  id: string;
-  title: string;
-  excerpt: string;
-  author: string;
-  category: string;
-  readTime: string;
-  likes: number;
-  comments: number;
-  tags: string[];
-  createdAt: string;
+interface IExcerptCardProps {
+  story: ICodingStory;
+  className?: string;
 }
 
-export default function StoryCard({
-  id,
-  title,
-  excerpt,
-  author,
-  category,
-  readTime,
-  likes,
-  comments,
-  tags,
-  createdAt
-}: StoryCardProps) {
+export function ExcerptCard({ story, className }: IExcerptCardProps) {
+  const {
+    id,
+    title,
+    excerpt,
+    author,
+    category,
+    readTime,
+    likes,
+    comments,
+    tags,
+    createdAt,
+  } = story;
+
   return (
-    <Card className="group hover:shadow-hover transition-all duration-300 hover:-translate-y-1 bg-gradient-card border-border/50">
+    <Card
+      className={cn(
+        "group hover:shadow-hover transition-all duration-300 hover:-translate-y-1 bg-gradient-card border-border/50",
+        className
+      )}
+    >
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between gap-3">
           <div className="flex-1">
-            <Badge variant="secondary" className="mb-2 bg-accent text-accent-foreground">
+            <Badge
+              variant="secondary"
+              className="mb-2 bg-accent text-accent-foreground"
+            >
               {category}
             </Badge>
             <h3 className="font-semibold text-lg leading-tight group-hover:text-primary transition-colors">
@@ -43,11 +47,11 @@ export default function StoryCard({
           </div>
           <BookOpen className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
         </div>
-        
+
         <div className="flex items-center gap-4 text-sm text-muted-foreground">
           <div className="flex items-center gap-1">
             <User className="w-4 h-4" />
-            {author}
+            {author.name}
           </div>
           <div className="flex items-center gap-1">
             <Clock className="w-4 h-4" />
@@ -57,9 +61,7 @@ export default function StoryCard({
       </CardHeader>
 
       <CardContent className="pt-0">
-        <p className="text-muted-foreground mb-4 line-clamp-3">
-          {excerpt}
-        </p>
+        <p className="text-muted-foreground mb-4 line-clamp-3">{excerpt}</p>
 
         <div className="flex flex-wrap gap-2 mb-4">
           {tags.slice(0, 3).map((tag) => (

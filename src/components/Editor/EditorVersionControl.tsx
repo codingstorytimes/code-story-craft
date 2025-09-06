@@ -1,12 +1,16 @@
-import { useState } from 'react';
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { History, RotateCcw, Clock } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 
-interface Version {
+export interface Version {
   id: string;
   content: string;
   timestamp: Date;
@@ -20,16 +24,18 @@ interface EditorVersionControlProps {
   onSaveVersion: (description: string) => void;
 }
 
-export default function EditorVersionControl({ 
-  versions, 
-  currentVersion, 
-  onRestore, 
-  onSaveVersion 
+export function EditorVersionControl({
+  versions,
+  currentVersion,
+  onRestore,
+  onSaveVersion,
 }: EditorVersionControlProps) {
   const [open, setOpen] = useState(false);
 
   const handleSaveVersion = () => {
-    const description = `Auto-save ${formatDistanceToNow(new Date(), { addSuffix: true })}`;
+    const description = `Auto-save ${formatDistanceToNow(new Date(), {
+      addSuffix: true,
+    })}`;
     onSaveVersion(description);
   };
 
@@ -50,7 +56,7 @@ export default function EditorVersionControl({
         <History className="w-3 h-3 mr-1" />
         Save Version
       </Button>
-      
+
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button variant="outline" size="sm" className="text-xs">
@@ -65,7 +71,9 @@ export default function EditorVersionControl({
             </CardHeader>
             <CardContent className="space-y-2 max-h-64 overflow-y-auto">
               {versions.length === 0 ? (
-                <p className="text-sm text-muted-foreground">No saved versions</p>
+                <p className="text-sm text-muted-foreground">
+                  No saved versions
+                </p>
               ) : (
                 versions.map((version, index) => (
                   <div
@@ -77,7 +85,9 @@ export default function EditorVersionControl({
                         {version.description}
                       </div>
                       <div className="text-xs text-muted-foreground">
-                        {formatDistanceToNow(version.timestamp, { addSuffix: true })}
+                        {formatDistanceToNow(version.timestamp, {
+                          addSuffix: true,
+                        })}
                       </div>
                       {index === 0 && (
                         <Badge variant="secondary" className="text-xs mt-1">

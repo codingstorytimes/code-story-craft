@@ -1,14 +1,17 @@
-import { Story } from "@/common/types/types";
-import { EnumStoryType } from "@/common/types/story";
+import { IAuthor, ICodingStory, EnumStoryType } from "@/common/types/types";
 
+const author: IAuthor = {
+  id: "1",
+  name: "CodingStoryTime",
+};
 
-
-
-export const sampleStories: Story[] = [
-    {
-      id: "1",
-      title: "The Day I Discovered Recursion (And Almost Broke My Mind)",
-      content: `# The Day I Discovered Recursion (And Almost Broke My Mind)
+export const sampleStories: ICodingStory[] = [
+  {
+    id: "1",
+    author: { id: "ddfdf", name: "Sarah Chen" },
+    isEmbeddable: false,
+    title: "The Day I Discovered Recursion (And Almost Broke My Mind)",
+    content: `# The Day I Discovered Recursion (And Almost Broke My Mind)
   
   Picture this: me, a junior developer, staring at a function that called itself. My first thought? "This is broken. Functions can't call themselves... can they?"
   
@@ -50,20 +53,20 @@ export const sampleStories: Story[] = [
   4. **Combine**: Use the smaller solution to build the bigger one
   
   Recursion taught me that sometimes the most elegant solutions come from believing in the process, even when it feels like magic.`,
-      excerpt: "Picture this: me, a junior developer, staring at a function that called itself. My first thought? 'This is broken. Functions can't call themselves... can they?'",
-      author: "Sarah Chen",
-      category: "Algorithms",
+    excerpt:
+      "Picture this: me, a junior developer, staring at a function that called itself. My first thought? 'This is broken. Functions can't call themselves... can they?'",
+    category: "Algorithms",
     storyType: EnumStoryType.Story,
-      readTime: "4 min read",
-      likes: 127,
-      comments: 23,
-      tags: ["recursion", "javascript", "learning", "debugging"],
-      createdAt: "2024-01-15"
-    },
-    {
-      id: "2", 
-      title: "SOLID: The Superhero Team That Saved My Codebase",
-      content: `# SOLID: The Superhero Team That Saved My Codebase
+    readTime: "4 min read",
+    likes: 127,
+    comments: 23,
+    tags: ["recursion", "javascript", "learning", "debugging"],
+    createdAt: "2024-01-15",
+  },
+  {
+    id: "2",
+    title: "SOLID: The Superhero Team That Saved My Codebase",
+    content: `# SOLID: The Superhero Team That Saved My Codebase
   
   Once upon a time, in the chaotic kingdom of Codeland, there lived a young developer whose codebase was a tangled mess. Then came five superheroes, each with a special power to bring order to the chaos.
   
@@ -123,20 +126,22 @@ export const sampleStories: Story[] = [
   - High-level strategy didn't depend on low-level implementation (Dependency Inversion)
   
   And they all coded happily ever after... until the next refactor.`,
-      excerpt: "Once upon a time, in the chaotic kingdom of Codeland, there lived a young developer whose codebase was a tangled mess. Then came five superheroes...",
-      author: "Marcus Rodriguez",
-      category: "Design Patterns",
-    storyType: EnumStoryType.Analogy,
-      readTime: "6 min read", 
-      likes: 203,
-      comments: 45,
-      tags: ["SOLID", "design-patterns", "clean-code", "superhero"],
-      createdAt: "2024-01-12"
-    },
-    {
-      id: "3",
-      title: "HTTP Status Codes: The Restaurant Analogy That Stuck",
-      content: `# HTTP Status Codes: The Restaurant Analogy That Stuck
+    excerpt: "",
+    author,
+    tags: [],
+    category: "",
+    storyType: EnumStoryType.Tutorial,
+    readTime: "",
+    createdAt: "",
+    isEmbeddable: false,
+    likes: 0,
+    comments: 0,
+  },
+  {
+    id: "3",
+    title: "HTTP Status Codes: The Restaurant Analogy That Stuck",
+    author: { id: "dasc", name: "Alex Kim" },
+    content: `# HTTP Status Codes: The Restaurant Analogy That Stuck
   
   Remembering HTTP status codes used to be impossible for me. Then my friend compared them to restaurant experiences, and everything clicked.
   
@@ -182,20 +187,24 @@ export const sampleStories: Story[] = [
   This restaurant analogy has saved me countless times during debugging. When my API returns 403, I know the user needs better "reservations" (permissions). When I get 502, I know the "delivery driver" (gateway) has issues.
   
   Sometimes the best learning happens over a good meal metaphor!`,
-      excerpt: "Remembering HTTP status codes used to be impossible for me. Then my friend compared them to restaurant experiences, and everything clicked.",
-      author: "Alex Kim",
-      category: "APIs",
-      storyType: EnumStoryType.Mnemonic,
-      readTime: "3 min read",
-      likes: 89,
-      comments: 12,
-      tags: ["HTTP", "status-codes", "API", "debugging", "memory-tricks"],
-      createdAt: "2024-01-10"
-    },
-    {
-      id: "4",
-      title: "Git Branching: My Parallel Universe Disaster",
-      content: `# Git Branching: My Parallel Universe Disaster
+    excerpt:
+      "Remembering HTTP status codes used to be impossible for me. Then my friend compared them to restaurant experiences, and everything clicked.",
+
+    category: "APIs",
+    storyType: EnumStoryType.Mnemonic,
+    readTime: "3 min read",
+    likes: 89,
+    comments: 12,
+    tags: ["HTTP", "status-codes", "API", "debugging", "memory-tricks"],
+    createdAt: "2024-01-10",
+    isEmbeddable: false,
+  },
+  {
+    id: "4",
+
+    title: "Git Branching: My Parallel Universe Disaster",
+    author: { id: "lkjbfgds", name: "Jamie Foster" },
+    content: `# Git Branching: My Parallel Universe Disaster
   
   Three months into my first job, I learned about Git branches the hard way. Let me tell you about the day I accidentally created a parallel universe in our codebase.
   
@@ -263,20 +272,23 @@ export const sampleStories: Story[] = [
   \`\`\`
   
   Now I never let my branches drift too far from reality. Parallel universes are fun in science fiction, but in code, they're just technical debt waiting to happen.`,
-      excerpt: "Three months into my first job, I learned about Git branches the hard way. Let me tell you about the day I accidentally created a parallel universe in our codebase.",
-      author: "Jamie Foster",
-      category: "DevOps",
-      storyType: EnumStoryType.Tutorial,
-      readTime: "5 min read",
-      likes: 156,
-      comments: 31,
-      tags: ["git", "branching", "version-control", "learning", "mistakes"],
-      createdAt: "2024-01-08"
-    },
-    {
-      id: "5",
-      title: "The Big O Notation Restaurant: A Speed Dating Story",
-      content: `# The Big O Notation Restaurant: A Speed Dating Story
+    excerpt:
+      "Three months into my first job, I learned about Git branches the hard way. Let me tell you about the day I accidentally created a parallel universe in our codebase.",
+
+    category: "DevOps",
+    storyType: EnumStoryType.Tutorial,
+    readTime: "5 min read",
+    likes: 156,
+    comments: 31,
+    tags: ["git", "branching", "version-control", "learning", "mistakes"],
+    createdAt: "2024-01-08",
+    isEmbeddable: false,
+  },
+  {
+    id: "5",
+    author,
+    title: "The Big O Notation Restaurant: A Speed Dating Story",
+    content: `# The Big O Notation Restaurant: A Speed Dating Story
   
   Understanding Big O notation clicked for me when I imagined algorithms as different types of restaurants trying to serve customers. Let me tell you about the weirdest speed dating event ever.
   
@@ -333,105 +345,16 @@ export const sampleStories: Story[] = [
   - Generating all possibilities? Only use O(2ⁿ) for very small inputs
   
   The moral of the story? Choose your algorithmic restaurant wisely. Your users are hungry, and they don't like waiting!`,
-      excerpt: "Understanding Big O notation clicked for me when I imagined algorithms as different types of restaurants trying to serve customers.",
-      author: "David Park",
-      category: "Algorithms",
-      storyType: EnumStoryType.Story,
-      readTime: "7 min read",
-      likes: 234,
-      comments: 52,
-      tags: ["big-o", "algorithms", "performance", "complexity", "restaurant"],
-      createdAt: "2024-01-05"
-    }
-  ];
+    excerpt:
+      "Understanding Big O notation clicked for me when I imagined algorithms as different types of restaurants trying to serve customers.",
 
-
-
-  export const featuredStories = [
-    {
-      id:"",
-      title: "The Tale of Two Arrays: A Love Story",
-      excerpt: "A beautiful story about merge sort and quick sort finding love in the world of algorithms...",
-      author: "Sarah Chen",
-      readTime: "5 min",
-      category: "Algorithms",
-      content:""
-    },
-    {
-      title: "SOLID Principles: The Superhero Team",
-      excerpt: "Meet the superhero team that saves codebases from chaos and technical debt...",
-      author: "Mike Rodriguez", 
-      readTime: "8 min",
-      category: "Design Patterns"
-    },
-    {
-      title: "The Database That Cried ACID",
-      excerpt: "Little Bobby Tables learns about database transactions through tears and triumph...",
-      author: "Jennifer Wong",
-      readTime: "6 min", 
-      category: "Database"
-    }
-  ];
-
-  export const mockStories = [
-    {
-      id: "1",
-      title: "The Tale of Two Arrays: A Love Story Between Merge Sort and Quick Sort",
-      excerpt: "Once upon a time in the land of Algorithmica, there lived two sorting algorithms who couldn't be more different. Merge Sort was methodical and predictable, while Quick Sort was fast but unpredictable...",
-      author: "Sarah Chen",
-      category: "Algorithms",
-      readTime: "5 min read",
-      likes: 124,
-      comments: 18,
-      tags: ["sorting", "algorithms", "story", "beginner"],
-      createdAt: "2024-01-15"
-    },
-    {
-      id: "2",
-      title: "SOLID Principles: The Superhero Team",
-      excerpt: "Imagine the SOLID principles as a superhero team. Single Responsibility Man can only do one thing, but he does it perfectly. Open-Closed Woman can extend her powers without changing her core abilities...",
-      author: "Mike Rodriguez",
-      category: "Design Patterns",
-      readTime: "8 min read",
-      likes: 89,
-      comments: 12,
-      tags: ["SOLID", "OOP", "design-patterns", "mnemonics"],
-      createdAt: "2024-01-14"
-    },
-    {
-      id: "3",
-      title: "The Database That Cried ACID",
-      excerpt: "Little Bobby Tables was working late one night when his database started crying. 'What's wrong?' he asked. 'I lost my ACID properties!' sobbed the database. This is the story of how Bobby helped restore Atomicity, Consistency, Isolation, and Durability...",
-      author: "Jennifer Wong",
-      category: "Database",
-      readTime: "6 min read",
-      likes: 156,
-      comments: 24,
-      tags: ["database", "ACID", "transactions", "story"],
-      createdAt: "2024-01-13"
-    },
-    {
-      id: "4",
-      title: "The Async/Await Café: A Promise-Based Love Story",
-      excerpt: "In downtown JavaScript City, there's a little café called 'The Promise'. The owner, Mr. Async, serves the best coffee, but only if you're willing to await your order...",
-      author: "David Kim",
-      category: "JavaScript",
-      readTime: "7 min read",
-      likes: 203,
-      comments: 31,
-      tags: ["javascript", "async", "promises", "story"],
-      createdAt: "2024-01-12"
-    },
-    {
-      id: "5",
-      title: "REST vs GraphQL: The Great API Debate",
-      excerpt: "Picture this: REST and GraphQL walk into a bar. The bartender asks, 'What'll it be?' REST orders exactly what's on the menu, while GraphQL asks for a custom cocktail with only the ingredients they want...",
-      author: "Emma Thompson",
-      category: "APIs",
-      readTime: "4 min read",
-      likes: 78,
-      comments: 9,
-      tags: ["REST", "GraphQL", "APIs", "comparison"],
-      createdAt: "2024-01-11"
-    }
-  ];
+    category: "Algorithms",
+    storyType: EnumStoryType.Story,
+    readTime: "7 min read",
+    likes: 234,
+    comments: 52,
+    tags: ["big-o", "algorithms", "performance", "complexity", "restaurant"],
+    createdAt: "2024-01-05",
+    isEmbeddable: false,
+  },
+];

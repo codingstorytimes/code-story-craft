@@ -1,12 +1,12 @@
 import { useState } from "react";
 import Layout from "@/components/Layout";
-import StoryCard from "@/components/StoryCard";
+import { ExcerptCard } from "@/components/ExcerptCard";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Search, Filter, TrendingUp, Clock, Heart } from "lucide-react";
 import { useStories } from "@/hooks/useStories";
 
-import { categories} from "@/data/data";
+import { categories } from "@/data/data";
 
 export default function Stories() {
   const { stories, searchStories } = useStories();
@@ -15,7 +15,7 @@ export default function Stories() {
   const [sortBy, setSortBy] = useState("latest");
 
   const filteredStories = searchStories(
-    searchTerm, 
+    searchTerm,
     selectedCategory === "All" ? undefined : selectedCategory
   );
 
@@ -85,8 +85,12 @@ export default function Stories() {
                 <TrendingUp className="w-5 h-5 text-story-purple" />
               </div>
               <div>
-                <div className="font-semibold">{filteredStories.length} Stories</div>
-                <div className="text-sm text-muted-foreground">Available to read</div>
+                <div className="font-semibold">
+                  {filteredStories.length} Stories
+                </div>
+                <div className="text-sm text-muted-foreground">
+                  Available to read
+                </div>
               </div>
             </div>
             <div className="flex items-center gap-3">
@@ -95,7 +99,9 @@ export default function Stories() {
               </div>
               <div>
                 <div className="font-semibold">~30 min</div>
-                <div className="text-sm text-muted-foreground">Total reading time</div>
+                <div className="text-sm text-muted-foreground">
+                  Total reading time
+                </div>
               </div>
             </div>
             <div className="flex items-center gap-3">
@@ -104,7 +110,9 @@ export default function Stories() {
               </div>
               <div>
                 <div className="font-semibold">650+ Likes</div>
-                <div className="text-sm text-muted-foreground">From the community</div>
+                <div className="text-sm text-muted-foreground">
+                  From the community
+                </div>
               </div>
             </div>
           </div>
@@ -113,14 +121,18 @@ export default function Stories() {
         {/* Stories Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredStories.map((story) => (
-            <StoryCard key={story.id} {...story} />
+            <ExcerptCard key={story.id} story={{ ...story }} />
           ))}
         </div>
 
         {filteredStories.length === 0 && (
           <div className="text-center py-12">
-            <p className="text-muted-foreground text-lg">No stories found matching your criteria.</p>
-            <p className="text-muted-foreground mt-2">Try adjusting your search or filters.</p>
+            <p className="text-muted-foreground text-lg">
+              No stories found matching your criteria.
+            </p>
+            <p className="text-muted-foreground mt-2">
+              Try adjusting your search or filters.
+            </p>
           </div>
         )}
       </div>
