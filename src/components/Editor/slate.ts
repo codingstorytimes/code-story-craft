@@ -50,6 +50,10 @@ export type CustomText = {
   strikethrough?: boolean;
   text: string;
   underline?: boolean;
+  align?: string;
+  color?: string;
+  backgroundColor?: string;
+  fontSize?: string;
 };
 
 // Element Types
@@ -222,4 +226,17 @@ export interface RenderSlateElementProps
   element: CustomElement;
   editor: CustomEditor;
   viewMode?: "editor" | "read";
+}
+export type EditorElementPlugin = {
+  type: string;
+  render: (
+    props: RenderSlateElementProps & { editor: TableEditor }
+  ) => JSX.Element;
+};
+
+export interface PluginEditor extends BaseEditor, ReactEditor, HistoryEditor {
+  renderElement: (
+    props: RenderSlateElementProps & { editor: TableEditor }
+  ) => JSX.Element;
+  registerElement: (plugin: EditorElementPlugin) => void;
 }

@@ -7,13 +7,25 @@ import {
   Descendant,
   Element as SlateElement,
   NodeEntry,
-  createEditor,
   Node,
 } from "slate";
-import { Slate, Editable, ReactEditor, withReact } from "slate-react";
+import { ReactEditor, RenderElementProps } from "slate-react";
 import { EventEmitter } from "events";
+import {
+  CustomEditor,
+  CustomElement,
+  EditorElementPlugin,
+  PluginEditor,
+} from "../slate";
 import { HistoryEditor } from "slate-history";
-import { CustomEditor, RenderSlateElementProps } from "../slate";
+
+// --- Props for element renderer ---
+export interface RenderSlateElementProps
+  extends Omit<RenderElementProps, "element"> {
+  element: CustomElement;
+  editor: CustomEditor;
+  viewMode?: "editor" | "read";
+}
 
 // -----------------------------
 // Constants for element types
@@ -47,6 +59,7 @@ export type TableElement = {
 // Define the extension interface
 // -----------------------------
 export interface TableUtils {
+  addTable: () => void;
   addRow: () => void;
   deleteRow: () => void;
   addColumn: () => void;
@@ -57,26 +70,20 @@ export interface TableUtils {
 // -----------------------------
 // Generic element plugin typing
 // -----------------------------
-export type EditorElementPlugin = {
-  type: string;
-  render: (
-    props: RenderSlateElementProps & { editor: TableEditor }
-  ) => JSX.Element;
-};
 
-export interface TableEditor extends BaseEditor, ReactEditor, HistoryEditor {
+export interface TableEditor
+  extends BaseEditor,
+    ReactEditor,
+    HistoryEditor,
+    PluginEditor {
   table: { tableUtils: TableUtils };
   __prevSelection: Range | null;
-  renderElement: (
-    props: RenderSlateElementProps & { editor: TableEditor }
-  ) => JSX.Element;
-  registerElement: (plugin: EditorElementPlugin) => void;
   selectionEvents?: EventEmitter;
   onKeyDown?: (event: React.KeyboardEvent) => void;
 }
 
 // -----------------------------
-// Selection helper (reactive)
+// Table/Cell Selection helper (reactive)
 // -----------------------------
 export function useSelected<T extends TableEditor>({
   element,
@@ -134,7 +141,7 @@ export function useSelected<T extends TableEditor>({
 // -----------------------------
 // Extend a base editor with table utilities
 // -----------------------------
-export const withTable = <T extends Editor & ReactEditor & HistoryEditor>(
+export const withTable = <T extends CustomEditor>(
   editor: T
 ): T & TableEditor => {
   const tableEditor = editor as T & TableEditor;
@@ -164,7 +171,33 @@ export const withTable = <T extends Editor & ReactEditor & HistoryEditor>(
     return <p {...props.attributes}>{props.children}</p>;
   };
 
+  // =============================================================
+  // Context Menu Buttons & Toolbar Buttons Helpers
+  // =============================================================
   tableEditor.table.tableUtils = {
+    addTable: () => {
+      try {
+        const table: TableElement = {
+          type: ComponentType.Table,
+          children: [
+            {
+              type: ComponentType.TableRow,
+              children: [
+                {
+                  type: ComponentType.TableCell,
+                  children: [
+                    { type: ComponentType.Paragraph, children: [{ text: "" }] },
+                  ],
+                },
+              ],
+            },
+          ],
+        };
+        Transforms.insertNodes(editor, table);
+      } catch (err) {
+        console.error(err);
+      }
+    },
     addRow: () => {
       try {
         const tableEntry = Editor.nodes(editor, {
