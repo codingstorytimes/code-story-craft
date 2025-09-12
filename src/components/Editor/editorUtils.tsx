@@ -24,10 +24,11 @@ import {
   IEmbedType,
   PluginEditor,
 } from "./slate";
-import { withTable } from "./plugins/Table/TablePlugin";
-import { withReact, Slate } from "slate-react";
-import { withMention } from "./plugins/Mention/MentionPlugin";
-import { withImage } from "./plugins/Image/ImagePlugin";
+import { withTable } from "./Plugins/Table/TablePlugin";
+import { withReact } from "slate-react";
+import { withMention } from "./Plugins/Mention/MentionPlugin";
+import { withImage } from "./Plugins/Image/ImagePlugin";
+import { withEmbeddedStory } from "./Plugins/EmbeddedStory/withEmbeddedStory";
 
 export function createCustomEditor(): Editor & HistoryEditor {
   let editor = withHistory(withReact(createEditor())) as CustomEditor;
@@ -44,7 +45,7 @@ export function createCustomEditor(): Editor & HistoryEditor {
     }
   };
 
-  editor = withImage(withMention(withTable(editor)));
+  editor = withEmbeddedStory(withImage(withMention(withTable(editor))));
 
   editor.isVoid = (element) =>
     SlateElement.isElement(element) && element.type === "image";
@@ -74,7 +75,6 @@ export function isMarkActive(
 ): boolean {
   const marks = Editor.marks(editor);
   return marks ? marks[format] === true : false;
-  //editor.isMarkActive(format)
 }
 
 export function toggleMark(editor: Editor, format: keyof CustomText) {
@@ -85,8 +85,6 @@ export function toggleMark(editor: Editor, format: keyof CustomText) {
     Editor.addMark(editor, format, true);
   }
 }
-
-type ActiveCheckType = "mark" | "block" | "link";
 
 export function ensureLastParagraph(editor: Editor) {
   const lastNode = editor.children[editor.children.length - 1];

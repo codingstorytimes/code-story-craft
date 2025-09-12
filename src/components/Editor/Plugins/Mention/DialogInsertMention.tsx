@@ -10,7 +10,13 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ComponentType, MentionElement } from "../../slate";
+import { ComponentType } from "../../slate";
+
+export type MentionElement = {
+  type: ComponentType.Mention;
+  character: string;
+  children: { text: string }[];
+};
 import { AtSign } from "lucide-react";
 
 interface DialogInsertMentionProps {
@@ -30,7 +36,7 @@ export default function DialogInsertMention({
 
     const mention: MentionElement = {
       type: ComponentType.Mention,
-      userId,
+      character: userId,
       children: [{ text: "" }],
     };
 

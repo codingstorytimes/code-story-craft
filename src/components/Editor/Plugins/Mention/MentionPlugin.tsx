@@ -13,7 +13,7 @@ export type MentionElement = {
   children: Descendant[];
 };
 
-const withMention = <T extends CustomEditor>(editor: T): T => {
+export const withMention = <T extends CustomEditor>(editor: T): T => {
   const { isInline } = editor;
   editor.isInline = (element) =>
     element.type === ComponentType.Mention ? true : isInline(element);

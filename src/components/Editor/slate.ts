@@ -1,13 +1,13 @@
 import { BaseEditor, Descendant } from "slate";
 import { HistoryEditor } from "slate-history";
 import { ReactEditor, RenderElementProps } from "slate-react";
+import { BlockQuoteElement } from "./BlockQuoteElement";
+import { BulletedListElement } from "./BulletedListElement";
+import { CheckListItemElement } from "./CheckListItemElement";
+import { CodeBlockElement } from "./CodeBlockElement";
+import { EditableVoidElement } from "./EditableVoidElement";
+import { EmbeddedStoryElement } from "./EmbeddedStoryElement";
 import {
-  BlockQuoteElement,
-  BulletedListElement,
-  CheckListItemElement,
-  CodeBlockElement,
-  EditableVoidElement,
-  EmbeddedStoryElement,
   HeadingElement,
   HeadingOneElement,
   HeadingTwoElement,
@@ -15,21 +15,22 @@ import {
   HeadingFourElement,
   HeadingFiveElement,
   HeadingSixElement,
-  LinkElement,
-  ListItemElement,
-  NumberedListElement,
-  ParagraphElement,
-  TagElement,
-  TitleElement,
-  VideoElement,
-} from "./Elements";
-import { ImageElement } from "./plugins/Image/ImageElement";
-import { MentionElement } from "./plugins/Mention/MentionPlugin";
+} from "./HeadingElement";
+import { LinkElement } from "./LinkElement";
+import { ListItemElement } from "./ListItemElement";
+import { NumberedListElement } from "./NumberedListElement";
+import { ParagraphElement } from "./ParagraphElement";
+import { TagElement } from "./TagElement";
+import { TitleElement } from "./TitleElement";
+import { VideoElement } from "./VideoElement";
+import { ThematicBreakElement } from "./Elements/ThematicBreakElement";
+import { ImageElement } from "./Plugins/Image/ImageElement";
+import { MentionElement } from "./Plugins/Mention/MentionPlugin";
 import {
   TableElement,
   TableRowElement,
   TableCellElement,
-} from "./plugins/Table/TableElement";
+} from "./Plugins/Table/TableElement";
 
 // ------------------------
 // Types, Enums, Interfaces

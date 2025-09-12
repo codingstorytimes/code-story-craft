@@ -114,7 +114,7 @@ export function TableToolbarButton({ editor }: { editor: TableEditor }) {
 
 export const TableToolCfg = {
   id: ComponentType.Table,
-  ToolBarButton: ,
+  ToolBarButton: TableToolbarButton,
   category: "modal",
   group: ToolbarGroupId.Inserts,
   ModalComponent: TableGridModal,

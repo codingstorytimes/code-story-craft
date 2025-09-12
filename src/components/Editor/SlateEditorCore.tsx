@@ -134,15 +134,11 @@ const handleKeyDown = (editor: CustomEditor) => {
 
 /* Toolbar */
 function Toolbar({ editor, userId }: { editor: CustomEditor; userId: string }) {
-  const [showEmbeddedStoryDialog, setShowEmbeddedStoryDialog] =
-    React.useState(false);
-  const [embedStoryId, setEmbedStoryId] = React.useState("");
-  const [embedType, setEmbedType] = React.useState<IEmbedType>("inline");
-
+  const GroupedToolbar = React.lazy(() => import('./Toolbar/GroupedToolbar'));
   return (
-    <div className="border-b border-border p-2 flex gap-1 flex-wrap">
-      //Toolbars
-    </div>
+    <React.Suspense fallback={<div>Loading toolbar...</div>}>
+      <GroupedToolbar editor={editor} userId={userId} />
+    </React.Suspense>
   );
 }
 

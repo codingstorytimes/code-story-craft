@@ -32,9 +32,8 @@ export function createCustomEditor(): CustomEditor {
   ) as CustomEditor;
 
   // Define a default renderElement to be called at the end of the plugin chain.
-  editor.renderElement = (props: RenderElementProps) => (
-    <p {...props.attributes}>{props.children}</p>
-  );
+  editor.renderElement = (props: RenderElementProps) => 
+    React.createElement('p', props.attributes, props.children);
 
   editor.isVoid = (element) =>
     SlateElement.isElement(element) && element.type === "image";

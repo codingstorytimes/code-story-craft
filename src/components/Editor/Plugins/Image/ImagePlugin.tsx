@@ -12,7 +12,7 @@ import { insertImage } from "../../editorUtils";
 import DialogPostUploadImage from "./DialogPostUploadImage";
 import { IEditorPlugin } from "../plugins";
 
-const withImage = <T extends CustomEditor>(editor: T): T => {
+export const withImage = <T extends CustomEditor>(editor: T): T => {
   const { isVoid } = editor;
   editor.isVoid = (element) => {
     return element.type === "image" ? true : isVoid(element);

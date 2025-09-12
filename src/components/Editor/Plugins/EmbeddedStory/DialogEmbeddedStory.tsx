@@ -28,64 +28,67 @@ const EmbeddedStoryToolbarButton = ({ editor }: { editor: CustomEditor }) => {
   const [embedStoryId, setEmbedStoryId] = useState("");
   const [embedType, setEmbedType] = useState<IEmbedType>("inline");
 
-  <Dialog
-    open={showEmbeddedStoryDialog}
-    onOpenChange={setShowEmbeddedStoryDialog}
-  >
-    <DialogTrigger asChild>
-      <Button
-        type="button"
-        variant="ghost"
-        size="sm"
-        onMouseDown={(e) => {
-          e.preventDefault();
-          setShowEmbeddedStoryDialog(true);
-        }}
-      >
-        <Plus className="w-4 h-4" />
-      </Button>
-    </DialogTrigger>
-    <DialogContent>
-      <DialogHeader>
-        <DialogTitle>Embed Story</DialogTitle>
-      </DialogHeader>
-      <div className="space-y-4">
-        <div>
-          <label className="text-sm font-medium">Select Story</label>
-          <StoryAutocomplete
-            onSelect={setEmbedStoryId}
-            placeholder="Search and select a story to embed..."
-          />
-        </div>
-        <div>
-          <label className="text-sm font-medium">Display Type</label>
-          <Select
-            value={embedType}
-            onValueChange={(value: IEmbedType) => setEmbedType(value)}
-          >
-            <SelectTrigger>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="mini">Mini Card</SelectItem>
-              <SelectItem value="inline">Inline Preview</SelectItem>
-              <SelectItem value="full">Full Content</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+  return (
+    <Dialog
+      open={showEmbeddedStoryDialog}
+      onOpenChange={setShowEmbeddedStoryDialog}
+    >
+      <DialogTrigger asChild>
         <Button
-          onClick={() => {
-            setShowEmbeddedStoryDialog(false);
-            setEmbedStoryId("");
-            insertEmbeddedStory(editor, embedStoryId, embedType);
+          type="button"
+          variant="ghost"
+          size="sm"
+          onMouseDown={(e) => {
+            e.preventDefault();
+            setShowEmbeddedStoryDialog(true);
           }}
-          className="w-full"
-          disabled={!embedStoryId}
         >
-          Insert Embed
+          <Plus className="w-4 h-4" />
         </Button>
-      </div>
-    </DialogContent>
-  </Dialog>
-)
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Embed Story</DialogTitle>
+        </DialogHeader>
+        <div className="space-y-4">
+          <div>
+            <label className="text-sm font-medium">Select Story</label>
+            <StoryAutocomplete
+              onSelect={setEmbedStoryId}
+              placeholder="Search and select a story to embed..."
+            />
+          </div>
+          <div>
+            <label className="text-sm font-medium">Display Type</label>
+            <Select
+              value={embedType}
+              onValueChange={(value: IEmbedType) => setEmbedType(value)}
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="mini">Mini Card</SelectItem>
+                <SelectItem value="inline">Inline Preview</SelectItem>
+                <SelectItem value="full">Full Content</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <Button
+            onClick={() => {
+              setShowEmbeddedStoryDialog(false);
+              setEmbedStoryId("");
+              insertEmbeddedStory(editor, embedStoryId, embedType);
+            }}
+            className="w-full"
+            disabled={!embedStoryId}
+          >
+            Insert Embed
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
 };
+
+export default EmbeddedStoryToolbarButton;
