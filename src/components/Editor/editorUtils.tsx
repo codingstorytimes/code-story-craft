@@ -195,3 +195,14 @@ export const insertEmbeddedStory = (
   Transforms.insertNodes(editor, embedBlock as Descendant);
   ensureLastParagraph(editor);
 };
+
+export function insertMention(editor: Editor, character: string) {
+  const mention: CustomElement = {
+    type: ComponentType.Mention,
+    character,
+    children: [{ text: "" }],
+  };
+  
+  Transforms.insertNodes(editor, mention as Descendant);
+  Transforms.move(editor);
+}

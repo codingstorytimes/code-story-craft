@@ -17,9 +17,9 @@ import {
 } from "@/components/ui/select";
 import StoryAutocomplete from "@/components/StoryAutocomplete";
 import { IEmbedType } from "../../slate";
-import { insertEmbeddedStory } from "../../editorUtils";
+import { insertEmbeddedStory } from "../../editorUtils.tsx";
 import { CustomEditor } from "../../slate";
-import { IEditorPlugin } from "../plugins";
+// Remove deprecated IEditorPlugin import
 import { useState } from "react";
 
 const EmbeddedStoryToolbarButton = ({ editor }: { editor: CustomEditor }) => {

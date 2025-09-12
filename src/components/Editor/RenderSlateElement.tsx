@@ -200,6 +200,31 @@ const elementRenderers: Record<
     <div {...attributes}>{children}</div>
   ),
 
+  [ComponentType.Table]: ({ attributes, children }) => (
+    <table {...attributes} className="w-full border-collapse border border-border">
+      {children}
+    </table>
+  ),
+
+  [ComponentType.TableRow]: ({ attributes, children }) => (
+    <tr {...attributes} className="border border-border">
+      {children}
+    </tr>
+  ),
+
+  [ComponentType.TableCell]: ({ attributes, children }) => (
+    <td {...attributes} className="border border-border p-2">
+      {children}
+    </td>
+  ),
+
+  [ComponentType.ThematicBreak]: ({ attributes, children }) => (
+    <div {...attributes} contentEditable={false} className="my-4">
+      <hr className="border-t-2 border-border" />
+      {children}
+    </div>
+  ),
+
   // Fallback for any additional unhandled types
 };
 
@@ -213,7 +238,7 @@ export default function renderSlateElement({
 }: RenderSlateElementProps) {
   // The plugin chain will handle rendering for elements it knows about.
   // We start the chain here.
-  const pluginElement = editor.renderElement({ attributes, children, element });
+  const pluginElement = editor.renderElement({ attributes, children, element, editor, viewMode });
   if (pluginElement) {
     return pluginElement;
   }

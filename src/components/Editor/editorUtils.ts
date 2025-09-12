@@ -22,7 +22,7 @@ import {
   CustomText,
   IEmbedType,
 } from "./slate";
-import { withTable } from "./Plugins/Table/TablePlugin.bak3";
+import { withTable } from "./Plugins/Table/TablePlugin";
 import { withReact, Slate } from "slate-react";
 import { withMention } from "./Plugins/Mention/MentionPlugin";
 

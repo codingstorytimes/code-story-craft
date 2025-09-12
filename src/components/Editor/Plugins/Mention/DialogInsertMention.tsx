@@ -22,13 +22,16 @@ import { AtSign } from "lucide-react";
 interface DialogInsertMentionProps {
   isOpen: boolean;
   onClose: () => void;
+  editor?: any;
 }
 
 export default function DialogInsertMention({
   isOpen,
   onClose,
+  editor: externalEditor,
 }: DialogInsertMentionProps) {
-  const editor = useSlate();
+  const slateEditor = useSlate();
+  const editor = externalEditor || slateEditor;
   const [userId, setCharacter] = useState("");
 
   const handleInsert = () => {

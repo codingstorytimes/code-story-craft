@@ -10,7 +10,7 @@ import {
 } from "../../slate";
 import { insertImage } from "../../editorUtils";
 import DialogPostUploadImage from "./DialogPostUploadImage";
-import { IEditorPlugin } from "../plugins";
+// Remove deprecated IEditorPlugin import
 
 export const withImage = <T extends CustomEditor>(editor: T): T => {
   const { isVoid } = editor;
@@ -63,7 +63,7 @@ const ImageToolbarButton = ({ userId }: { userId: string }) => {
   );
 };
 
-export const ImagePlugin: IEditorPlugin = {
+export const ImagePlugin = {
   id: "image",
   withPlugin: withImage,
   toolbarButtons: [
@@ -71,7 +71,7 @@ export const ImagePlugin: IEditorPlugin = {
       id: "image",
       group: "media",
       tooltip: "Insert Image",
-      render: (editor, { userId }) => <ImageToolbarButton userId={userId} />,
+      render: (editor: CustomEditor, options?: { userId: string }) => <ImageToolbarButton userId={options?.userId || ""} />,
     },
   ],
 };

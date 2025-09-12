@@ -1,5 +1,5 @@
 import { Descendant } from "slate";
-import { ComponentType } from "../../slate";
+import { ComponentType } from "./slate";
 
 export type HeadingElement = {
   type: ComponentType.Heading;

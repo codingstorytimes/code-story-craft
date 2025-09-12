@@ -1,13 +1,13 @@
 import { BaseEditor, Descendant } from "slate";
 import { HistoryEditor } from "slate-history";
 import { ReactEditor, RenderElementProps } from "slate-react";
-import { BlockQuoteElement } from "./BlockQuoteElement";
-import { BulletedListElement } from "./BulletedListElement";
-import { CheckListItemElement } from "./CheckListItemElement";
-import { CodeBlockElement } from "./CodeBlockElement";
-import { EditableVoidElement } from "./EditableVoidElement";
-import { EmbeddedStoryElement } from "./EmbeddedStoryElement";
-import {
+import type { BlockQuoteElement } from "./BlockQuoteElement";
+import type { BulletedListElement } from "./BulletedListElement";
+import type { CheckListItemElement } from "./CheckListItemElement";
+import type { CodeBlockElement } from "./CodeBlockElement";
+import type { EditableVoidElement } from "./EditableVoidElement";
+import type { EmbeddedStoryElement } from "./EmbeddedStoryElement";
+import type {
   HeadingElement,
   HeadingOneElement,
   HeadingTwoElement,
@@ -16,17 +16,17 @@ import {
   HeadingFiveElement,
   HeadingSixElement,
 } from "./HeadingElement";
-import { LinkElement } from "./LinkElement";
-import { ListItemElement } from "./ListItemElement";
-import { NumberedListElement } from "./NumberedListElement";
-import { ParagraphElement } from "./ParagraphElement";
-import { TagElement } from "./TagElement";
-import { TitleElement } from "./TitleElement";
-import { VideoElement } from "./VideoElement";
-import { ThematicBreakElement } from "./Elements/ThematicBreakElement";
-import { ImageElement } from "./Plugins/Image/ImageElement";
-import { MentionElement } from "./Plugins/Mention/MentionPlugin";
-import {
+import type { LinkElement } from "./LinkElement";
+import type { ListItemElement } from "./ListItemElement";
+import type { NumberedListElement } from "./NumberedListElement";
+import type { ParagraphElement } from "./ParagraphElement";
+import type { TagElement } from "./TagElement";
+import type { TitleElement } from "./TitleElement";
+import type { VideoElement } from "./VideoElement";
+import type { ThematicBreakElement } from "./Elements/ThematicBreakElement";
+import type { ImageElement } from "./Plugins/Image/ImageElement";
+import type { MentionElement } from "./Plugins/Mention/MentionPlugin";
+import type {
   TableElement,
   TableRowElement,
   TableCellElement,
@@ -197,7 +197,7 @@ export interface RenderSlateElementProps
   viewMode?: "editor" | "read";
 }
 
-export {
+export type {
   BlockQuoteElement,
   BulletedListElement,
   CheckListItemElement,

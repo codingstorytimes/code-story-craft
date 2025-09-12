@@ -1,11 +1,11 @@
 // Re-export all element types from the root files
-export { BlockQuoteElement } from "../BlockQuoteElement";
-export { BulletedListElement } from "../BulletedListElement";
-export { CheckListItemElement } from "../CheckListItemElement";
-export { CodeBlockElement } from "../CodeBlockElement";
-export { EditableVoidElement } from "../EditableVoidElement";
-export { EmbeddedStoryElement } from "../EmbeddedStoryElement";
-export { 
+export type { BlockQuoteElement } from "../BlockQuoteElement";
+export type { BulletedListElement } from "../BulletedListElement";
+export type { CheckListItemElement } from "../CheckListItemElement";
+export type { CodeBlockElement } from "../CodeBlockElement";
+export type { EditableVoidElement } from "../EditableVoidElement";
+export type { EmbeddedStoryElement } from "../EmbeddedStoryElement";
+export type { 
   HeadingElement,
   HeadingOneElement,
   HeadingTwoElement,
@@ -14,11 +14,11 @@ export {
   HeadingFiveElement,
   HeadingSixElement
 } from "../HeadingElement";
-export { LinkElement } from "../LinkElement";
-export { ListItemElement } from "../ListItemElement";
-export { NumberedListElement } from "../NumberedListElement";
-export { ParagraphElement } from "../ParagraphElement";
-export { TagElement } from "../TagElement";
-export { TitleElement } from "../TitleElement";
-export { VideoElement } from "../VideoElement";
-export { ThematicBreakElement } from "./ThematicBreakElement";
+export type { LinkElement } from "../LinkElement";
+export type { ListItemElement } from "../ListItemElement";
+export type { NumberedListElement } from "../NumberedListElement";
+export type { ParagraphElement } from "../ParagraphElement";
+export type { TagElement } from "../TagElement";
+export type { TitleElement } from "../TitleElement";
+export type { VideoElement } from "../VideoElement";
+export type { ThematicBreakElement } from "./ThematicBreakElement";

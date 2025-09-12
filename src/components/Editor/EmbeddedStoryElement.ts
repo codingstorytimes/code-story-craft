@@ -1,4 +1,4 @@
-import { CustomText, IEmbedType, ComponentType } from "../../slate";
+import { CustomText, IEmbedType, ComponentType } from "./slate";
 
 export type EmbeddedStoryElement = {
   type: ComponentType.EmbeddedStory;
