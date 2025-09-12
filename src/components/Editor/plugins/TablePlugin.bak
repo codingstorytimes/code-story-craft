@@ -1,0 +1,466 @@
+import React, { useState, useEffect, useCallback, createElement } from "react";
+import {
+  Editor,
+  Range,
+  Transforms,
+  Descendant,
+  Element as SlateElement,
+} from "slate";
+import { ReactEditor, RenderElementProps } from "slate-react";
+import { EventEmitter } from "events";
+
+import { TableContextMenu } from "./TableContextMenu";
+
+// -----------------------------
+// Constants for element types
+// -----------------------------
+export enum ComponentType {
+  Paragraph = "paragraph",
+  TableCell = "table-cell",
+  TableRow = "table-row",
+  Table = "table",
+}
+
+// -----------------------------
+// Types
+// -----------------------------
+export type TableCellElement = {
+  type: ComponentType.TableCell;
+  children: Descendant[];
+};
+
+export type TableRowElement = {
+  type: ComponentType.TableRow;
+  children: TableCellElement[];
+};
+
+export type TableElement = {
+  type: ComponentType.Table;
+  children: TableRowElement[];
+};
+
+// Extends the Slate Editor with custom properties from the plugin
+export interface CustomEditor extends Editor {
+  table: any;
+  selectionEvents?: EventEmitter;
+  __prevSelection: Range | null;
+  registerElement: (plugin: EditorElementPlugin<any>) => void;
+  renderElement: (
+    props: RenderElementProps & { editor: Editor }
+  ) => JSX.Element;
+  onKeyDown?: (event: React.KeyboardEvent) => void;
+}
+
+export type SelectionMode = "collapsed" | "expanded";
+export type EditorElementPlugin<T> = {
+  type: string;
+  render: (props: RenderElementProps & { editor: CustomEditor }) => JSX.Element;
+};
+
+// -----------------------------
+// Selection helper (reactive)
+// -----------------------------
+export function useSelected({
+  element,
+  editor,
+  mode,
+  surrounds = false,
+}: {
+  element: SlateElement;
+  editor: CustomEditor;
+  mode?: SelectionMode;
+  surrounds?: boolean;
+}): boolean {
+  const checkSelection = useCallback(() => {
+    if (!element || !editor) return false;
+    const sel = editor.selection;
+    if (!sel || !Range.isRange(sel)) return false;
+
+    try {
+      const path = ReactEditor.findPath(editor, element);
+      const range = Editor.range(editor, path);
+      const target =
+        surrounds && Range.isExpanded(sel)
+          ? Range.surrounds(sel, range)
+          : !!Range.intersection(range, sel);
+
+      if (mode === "collapsed") return target && Range.isCollapsed(sel);
+      if (mode === "expanded") return target && Range.isExpanded(sel);
+      return target;
+    } catch {
+      return false;
+    }
+  }, [element, editor, mode, surrounds]);
+
+  const [selected, setSelected] = useState(() => checkSelection());
+
+  useEffect(() => {
+    setSelected(checkSelection());
+    const handler = () => {
+      setSelected((prev) => {
+        const next = checkSelection();
+        return prev === next ? prev : next;
+      });
+    };
+    editor.selectionEvents?.on("change", handler);
+    return () => {
+      if (editor.selectionEvents) {
+        editor.selectionEvents.off("change", handler);
+      }
+    };
+  }, [editor, element, checkSelection]);
+
+  return selected;
+}
+
+// -----------------------------
+// Presentational components
+// -----------------------------
+
+interface TableCellProps extends RenderElementProps {
+  element: TableCellElement;
+  editor: CustomEditor;
+}
+
+export const TableCell = ({
+  attributes,
+  children,
+  element,
+  editor,
+}: TableCellProps) => {
+  const selected = useSelected({ element, editor });
+  return (
+    <td
+      {...attributes}
+      style={{
+        border: "1px solid #ccc",
+        padding: "8px",
+        backgroundColor: selected ? "lightblue" : "transparent",
+        minWidth: 64,
+      }}
+    >
+      {children}
+    </td>
+  );
+};
+
+interface TableRowProps extends RenderElementProps {
+  element: TableRowElement;
+}
+
+export const TableRow = ({ attributes, children }: TableRowProps) => (
+  <tr {...attributes}>{children}</tr>
+);
+
+interface TableProps extends RenderElementProps {
+  element: TableElement;
+  editor: CustomEditor;
+}
+
+export const Table = ({
+  attributes,
+  children,
+  element,
+  editor,
+}: TableProps) => {
+  const selected = useSelected({
+    element,
+    editor,
+    mode: "expanded",
+    surrounds: true,
+  });
+  return (
+    <TableContextMenu element={element} editor={editor}>
+      <table
+        {...attributes}
+        style={{
+          borderCollapse: "collapse",
+          margin: "8px 0",
+          backgroundColor: selected ? "rgba(173,216,230,0.25)" : "transparent",
+        }}
+      >
+        <tbody>{children}</tbody>
+      </table>
+    </TableContextMenu>
+  );
+};
+
+// -----------------------------
+// Plugins for Table Elements
+// -----------------------------
+
+export const tableElementPlugin = (): EditorElementPlugin<any> => ({
+  type: ComponentType.Table,
+  render: (props) => <Table {...props} />,
+});
+
+export const tableRowElementPlugin = (): EditorElementPlugin<any> => ({
+  type: ComponentType.TableRow,
+  render: (props) => <TableRow {...props} />,
+});
+
+export const tableCellElementPlugin = (): EditorElementPlugin<any> => ({
+  type: ComponentType.TableCell,
+  render: (props) => <TableCell {...props} />,
+});
+
+// -----------------------------
+// Plugin Enhancer: withTable
+// -----------------------------
+export const withTable = <T extends Editor>(editor: T): T & CustomEditor => {
+  const customEditor = editor as T & CustomEditor;
+  const origOnChange = customEditor.onChange;
+  const origOnKeyDown = customEditor.onKeyDown;
+  customEditor.table = {};
+
+  customEditor.selectionEvents =
+    customEditor.selectionEvents || new EventEmitter();
+  customEditor.__prevSelection = customEditor.__prevSelection || null;
+
+  const elements = new Map<string, EditorElementPlugin<any>>();
+  if (!customEditor.registerElement) {
+    customEditor.registerElement = (plugin: EditorElementPlugin<any>) => {
+      elements.set(plugin.type, plugin);
+    };
+  }
+
+  customEditor.registerElement(tableElementPlugin());
+  customEditor.registerElement(tableRowElementPlugin());
+  customEditor.registerElement(tableCellElementPlugin());
+
+  customEditor.renderElement = (props: RenderElementProps) => {
+    const plugin = elements.get((props.element as SlateElement).type);
+    if (plugin)
+      return createElement(plugin.render, { ...props, editor: customEditor });
+    return <p {...props.attributes}>{props.children}</p>;
+  };
+
+  customEditor.table.tableUtils = {
+    addRow: () => {
+      try {
+        const [tableEntry] = Editor.nodes(customEditor, {
+          match: (n) =>
+            SlateElement.isElement(n) && n.type === ComponentType.Table,
+        });
+        if (!tableEntry) return;
+        const [tableNode, tablePath] = tableEntry;
+        const cols =
+          (tableNode.children?.[0] as TableRowElement)?.children?.length || 1;
+        const newRow = {
+          type: ComponentType.TableRow,
+          children: Array.from({ length: cols }).map(() => ({
+            type: ComponentType.TableCell,
+            children: [
+              { type: ComponentType.Paragraph, children: [{ text: "" }] },
+            ],
+          })),
+        };
+        Transforms.insertNodes(customEditor, newRow, {
+          at: [...tablePath, tableNode.children.length],
+        });
+      } catch (err) {
+        console.error(err);
+      }
+    },
+    deleteRow: () => {
+      try {
+        const [currentRowEntry] = Editor.nodes(customEditor, {
+          match: (n) =>
+            SlateElement.isElement(n) && n.type === ComponentType.TableRow,
+        });
+        if (!currentRowEntry) return;
+        const [, currentRowPath] = currentRowEntry;
+        Transforms.removeNodes(customEditor, { at: currentRowPath });
+      } catch (err) {
+        console.error(err);
+      }
+    },
+    addColumn: () => {
+      try {
+        const [tableEntry] = Editor.nodes(customEditor, {
+          match: (n) =>
+            SlateElement.isElement(n) && n.type === ComponentType.Table,
+        });
+        if (!tableEntry) return;
+        const [tableNode, tablePath] = tableEntry;
+        const rowCount = tableNode.children.length;
+        for (let rowIndex = 0; rowIndex < rowCount; rowIndex++) {
+          const row = tableNode.children[rowIndex] as TableRowElement;
+          const rowCellCount = row?.children?.length || 0;
+          const cell = {
+            type: ComponentType.TableCell,
+            children: [
+              { type: ComponentType.Paragraph, children: [{ text: "" }] },
+            ],
+          };
+          Transforms.insertNodes(customEditor, cell, {
+            at: [...tablePath, rowIndex, rowCellCount],
+          });
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    },
+    deleteColumn: () => {
+      try {
+        const [currentCellEntry] = Editor.nodes(customEditor, {
+          match: (n) =>
+            SlateElement.isElement(n) && n.type === ComponentType.TableCell,
+        });
+        if (!currentCellEntry) return;
+        const [, currentCellPath] = currentCellEntry;
+        const cellIndex = currentCellPath[currentCellPath.length - 1];
+        const [tableEntry] = Editor.nodes(customEditor, {
+          match: (n) =>
+            SlateElement.isElement(n) && n.type === ComponentType.Table,
+        });
+        if (!tableEntry) return;
+        const [tableNode, tablePath] = tableEntry;
+        const rowCount = tableNode.children.length;
+        for (let rowIndex = 0; rowIndex < rowCount; rowIndex++) {
+          Transforms.removeNodes(customEditor, {
+            at: [...tablePath, rowIndex, cellIndex],
+          });
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    },
+    deleteTable: () => {
+      try {
+        const [tableEntry] = Editor.nodes(customEditor, {
+          match: (n) =>
+            SlateElement.isElement(n) && n.type === ComponentType.Table,
+        });
+        if (!tableEntry) return;
+        const [, tablePath] = tableEntry;
+        Transforms.removeNodes(customEditor, { at: tablePath });
+      } catch (err) {
+        console.error(err);
+      }
+    },
+  };
+
+  customEditor.onChange = (...args: any[]) => {
+    if (typeof origOnChange === "function")
+      origOnChange.apply(customEditor, args);
+    const prev = customEditor.__prevSelection;
+    const cur = customEditor.selection;
+    const changed =
+      (!prev && cur) ||
+      (prev && !cur) ||
+      (prev &&
+        cur &&
+        Range.isRange(prev) &&
+        Range.isRange(cur) &&
+        !Range.equals(prev, cur));
+    customEditor.__prevSelection = cur;
+    if (changed) customEditor.selectionEvents?.emit("change", { prev, cur });
+  };
+
+  customEditor.onKeyDown = (event: React.KeyboardEvent) => {
+    if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "a") {
+      const sel = customEditor.selection;
+      if (sel && Range.isRange(sel)) {
+        const tableEntry = Editor.above(customEditor, {
+          match: (n) =>
+            SlateElement.isElement(n) &&
+            (n as SlateElement).type === ComponentType.Table,
+        });
+        if (tableEntry) {
+          event.preventDefault();
+          const [, tablePath] = tableEntry;
+          const range = Editor.range(customEditor, tablePath);
+          Transforms.select(customEditor, range);
+          customEditor.selectionEvents?.emit("change", {
+            prev: customEditor.__prevSelection,
+            cur: range,
+          });
+          return;
+        }
+      }
+    }
+    origOnKeyDown?.(event);
+  };
+
+  return customEditor;
+};
+
+// -----------------------------
+// Example Editor
+// -----------------------------
+/*
+
+// -----------------------------
+// Default Value
+// -----------------------------
+const DEFAULT_VALUE: Descendant[] = [
+  {
+    type: ComponentType.Paragraph,
+    children: [
+      {
+        text: "Type in the editor. Cmd/Ctrl+A inside a table selects the entire table.",
+      },
+    ],
+  },
+  {
+    type: ComponentType.Table,
+    children: [
+      {
+        type: ComponentType.TableRow,
+        children: [
+          {
+            type: ComponentType.TableCell,
+            children: [{ type: ComponentType.Paragraph, children: [{ text: "Name" }] }],
+          },
+          {
+            type: ComponentType.TableCell,
+            children: [{ type: ComponentType.Paragraph, children: [{ text: "Role" }] }],
+          },
+          {
+            type: ComponentType.TableCell,
+            children: [{ type: ComponentType.Paragraph, children: [{ text: "Location" }] }],
+          },
+        ],
+      },
+      {
+        type: ComponentType.TableRow,
+        children: [
+          {
+            type: ComponentType.TableCell,
+            children: [{ type: ComponentType.Paragraph, children: [{ text: "Alice" }] }],
+          },
+          {
+            type: ComponentType.TableCell,
+            children: [{ type: ComponentType.Paragraph, children: [{ text: "Engineer" }] }],
+          },
+          {
+            type: ComponentType.TableCell,
+            children: [{ type: ComponentType.Paragraph, children: [{ text: "Austin" }] }],
+          },
+        ],
+      },
+    ],
+  },
+  { type: ComponentType.Paragraph, children: [{ text: "" }] },
+];
+
+
+export default function DemoEditor() {
+  const [editor] = useState(() => withTable(withReact(createEditor())));
+  const [value, setValue] = useState<Descendant[]>(DEFAULT_VALUE);
+
+  return (
+    <div style={{ maxWidth: 640, margin: '20px auto' }}>
+      <h3>Slate table selection + plugin-based rendering demo</h3>
+      <Slate editor={editor} initialValue={value} onChange={setValue}>
+        <Editable
+          renderElement={props => editor.renderElement({ ...props, editor })}
+          style={{ border: '1px solid #ddd', padding: '12px' }}
+          onKeyDown={event => editor.onKeyDown?.(event)}
+        />
+      </Slate>
+    </div>
+  );
+}
+*/

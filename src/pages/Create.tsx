@@ -5,11 +5,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { PenTool, Edit, Eye, Hash, X } from "lucide-react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { PenTool, Edit, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import SlateEditor from "@/components/Editor/SlateEditor";
-import { StoryPreview } from "@/components/Editor/StoryPreview";
+import StoryEditor from "@/components/Editor/StoryEditor";
+
 import { storyTypes, categories } from "@/data/data";
 import { useStories } from "@/hooks/useStories";
 import { EnumStoryType } from "@/common/types/types";
@@ -23,7 +22,7 @@ export default function Create() {
   const [storyType, setStoryType] = useState("");
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState("");
-  const [activeTab, setActiveTab] = useState<"write" | "preview">("write");
+
   const { toast } = useToast();
   const isEditing = Boolean(id);
 
@@ -71,7 +70,7 @@ export default function Create() {
       return;
     }
 
-    // Normally you’d call an API here
+    // TODO call use starage to persist
     toast({
       title: isEditing ? "Story Updated! ✨" : "Story Published! 🎉",
       description: isEditing
@@ -86,7 +85,6 @@ export default function Create() {
     setStoryType("");
     setTags([]);
     setTagInput("");
-    setActiveTab("write");
   };
 
   return (
@@ -228,81 +226,32 @@ export default function Create() {
                 >
                   Your Story *
                 </label>
-                <Tabs
-                  value={activeTab}
-                  onValueChange={(value) =>
-                    setActiveTab(value as "write" | "preview")
-                  }
-                  className="w-full"
-                >
-                  <TabsList className="grid w-full grid-cols-2 mb-4">
-                    <TabsTrigger
-                      value="write"
-                      className="flex items-center gap-2"
-                    >
-                      <Hash className="w-4 h-4" /> Write
-                    </TabsTrigger>
-                    <TabsTrigger
-                      value="preview"
-                      className="flex items-center gap-2"
-                    >
-                      <Eye className="w-4 h-4" /> Preview
-                    </TabsTrigger>
-                  </TabsList>
-
-                  <TabsContent value="write" className="mt-0">
-                    <SlateEditor
-                      story={isEditing ? { 
-                        id: id!, 
-                        title, 
-                        content, 
-                        category, 
-                        storyType: storyType as EnumStoryType,
-                        tags,
-                        excerpt: "",
-                        author: { id: userId, name: "You" },
-                        readTime: "5 min read",
-                        createdAt: new Date().toISOString(),
-                        updatedAt: new Date().toISOString(),
-                        isEmbeddable: false,
-                        likes: 0,
-                        comments: 0
-                      } : undefined}
-                      onChange={setContent}
-                      userId={userId}
-                    />
-                  </TabsContent>
-
-                  <TabsContent value="preview" className="mt-0">
-                    <div className="p-4 border rounded-md">
-                      {title || category || storyType || tags.length > 0 ? (
-                        <StoryPreview
-                          story={{
-                            id: "preview-temp",
-                            title: title || "Untitled Story",
-                            content: content,
-                            excerpt: "",
-                            author: { id: "preview-author", name: "You" },
-                            category: category || "Uncategorized",
+                <div className="w-full">
+                  <StoryEditor
+                    story={
+                      isEditing
+                        ? {
+                            id: id!,
+                            title,
+                            content,
+                            category,
                             storyType: storyType as EnumStoryType,
-                            tags: tags || [],
+                            tags,
+                            excerpt: "",
+                            author: { id: userId, name: "You" },
                             readTime: "5 min read",
                             createdAt: new Date().toISOString(),
                             updatedAt: new Date().toISOString(),
                             isEmbeddable: false,
                             likes: 0,
                             comments: 0,
-                          }}
-                        />
-                      ) : (
-                        <div className="text-center text-muted-foreground py-12">
-                          <Eye className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                          <p>Add a title and content to see the preview</p>
-                        </div>
-                      )}
-                    </div>
-                  </TabsContent>
-                </Tabs>
+                          }
+                        : undefined
+                    }
+                    onChange={setContent}
+                    userId={userId}
+                  />
+                </div>
                 <p className="text-sm text-muted-foreground mt-2">
                   Tip: Use the formatting tools above for better readability
                 </p>

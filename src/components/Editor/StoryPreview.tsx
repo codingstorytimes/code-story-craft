@@ -23,35 +23,40 @@ export function StoryPreview({ story, className }: IStoryPreviewProps) {
   } = story;
 
   return (
-    <Card className={className}>
-      <CardHeader>
-        <div className="flex items-center gap-2 mb-4">
-          {category && <Badge variant="secondary">{category}</Badge>}
-          {storyType && <Badge variant="outline">{storyType}</Badge>}
-        </div>
-        <CardTitle className="text-3xl">{title}</CardTitle>
-        <div className="flex items-center justify-between text-sm text-muted-foreground mt-2">
-          <span>By {author?.name || "Anonymous"}</span>
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-1">
+    <>
+      <Card className={`my-6 ${className}`}>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-xl">{title}</CardTitle>
+            <Badge variant="secondary">{storyType}</Badge>
+          </div>
+          <div className="flex items-center gap-4 text-sm text-muted-foreground">
+            <span>By {author.name}</span>
+            <span className="flex items-center gap-1">
               <Clock className="w-4 h-4" />
-              {readTime || "1 min read"}
-            </div>
-            <div className="flex items-center gap-1">
+              {readTime}
+            </span>
+            <span className="flex items-center gap-1">
               <Heart className="w-4 h-4" />
               {likes}
-            </div>
-            <div className="flex items-center gap-1">
+            </span>
+            <span className="flex items-center gap-1">
               <MessageSquare className="w-4 h-4" />
               {comments}
-            </div>
+            </span>
           </div>
-        </div>
-      </CardHeader>
-
-      <CardContent>
-        <RichTextViewer content={content} />
-      </CardContent>
-    </Card>
+        </CardHeader>
+        <CardContent>
+          <RichTextViewer content={content} />
+          <div className="flex flex-wrap gap-2 mt-4">
+            {tags.map((tag) => (
+              <Badge key={tag} variant="outline" className="text-sm">
+                {tag}
+              </Badge>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+    </>
   );
 }

@@ -16,7 +16,7 @@ import {
   ImageElement,
   CustomText,
   CustomElement,
-} from "@/common/types/slate";
+} from "@/components/Editor/slate";
 
 // ------------------- Slate → Markdown -------------------
 
@@ -136,6 +136,7 @@ function slateTextToHtml(textNode: CustomText): string {
   if (textNode.bold) text = `<strong>${text}</strong>`;
   if (textNode.italic) text = `<em>${text}</em>`;
   if (textNode.underline) text = `<u>${text}</u>`;
+  if (textNode.strikethrough) text = `<del>${text}</del>`;
   return text;
 }
 

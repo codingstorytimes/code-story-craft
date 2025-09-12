@@ -1,13 +1,22 @@
 import { BaseEditor, Descendant } from "slate";
 import { HistoryEditor } from "slate-history";
-import { ReactEditor } from "slate-react";
+import { ReactEditor, RenderElementProps } from "slate-react";
 
+import {
+  TableCellElement,
+  ComponentType as TableComponentType,
+  TableEditor,
+  TableElement,
+  TableRowElement,
+} from "./plugins/TablePlugin";
+
+// ------------------- Block Components -------------------
+// enum, designed for block-level elements like headings and paragraphs
 export enum ComponentType {
   BlockQuote = "block-quote",
   BulletedList = "bulleted-list",
   NumberedList = "numbered-list",
   CheckListItem = "check-list-item",
-  Code = "code",
   CodeBlock = "code-block",
   EditableVoid = "editable-void",
   EmbeddedStory = "embedded-story",
@@ -21,7 +30,6 @@ export enum ComponentType {
   Image = "image",
   Link = "link",
   ListItem = "list-item",
-  Mark = "mark",
   Mention = "mention",
   Paragraph = "paragraph",
   TableCell = "table-cell",
@@ -30,9 +38,9 @@ export enum ComponentType {
   Tag = "tag",
   Title = "title",
   Video = "video",
+  ThematicBreak = "thematic-break",
 }
 
-// Custom types matching your Slate editor
 export type IEmbedType = "mini" | "inline" | "full";
 
 export type CustomText = {
@@ -63,11 +71,6 @@ export type NumberedListElement = {
 export type CheckListItemElement = {
   type: ComponentType.CheckListItem;
   checked: boolean;
-  children: Descendant[];
-};
-
-export type CodeElement = {
-  type: ComponentType.Code;
   children: Descendant[];
 };
 
@@ -139,11 +142,7 @@ export type LinkElement = {
 export type ListItemElement = {
   type: ComponentType.ListItem;
   children: Descendant[];
-};
-
-export type MarkElement = {
-  type: ComponentType.Mark;
-  children: Descendant[];
+  level?: number;
 };
 
 export type MentionElement = {
@@ -155,21 +154,6 @@ export type MentionElement = {
 export type ParagraphElement = {
   type: ComponentType.Paragraph;
   children: Descendant[];
-};
-
-export type TableCellElement = {
-  type: ComponentType.TableCell;
-  children: Descendant[];
-};
-
-export type TableRowElement = {
-  type: ComponentType.TableRow;
-  children: TableCellElement[];
-};
-
-export type TableElement = {
-  type: ComponentType.Table;
-  children: TableRowElement[];
 };
 
 export type TagElement = {
@@ -196,7 +180,6 @@ export type CustomElement =
   | BulletedListElement
   | CheckListItemElement
   | CodeBlockElement
-  | CodeElement
   | EditableVoidElement
   | EmbeddedStoryElement
   | HeadingElement
@@ -208,8 +191,6 @@ export type CustomElement =
   | HeadingSixElement
   | ImageElement
   | LinkElement
-  | ListItemElement
-  | MarkElement
   | MentionElement
   | NumberedListElement
   | ParagraphElement
@@ -221,7 +202,10 @@ export type CustomElement =
   | VideoElement;
 
 // Slate Editor Type
-export type CustomEditor = BaseEditor & ReactEditor & HistoryEditor;
+export type CustomEditor = BaseEditor &
+  TableEditor &
+  ReactEditor &
+  HistoryEditor;
 
 // Augment Slate's Custom Types
 declare module "slate" {
@@ -230,4 +214,12 @@ declare module "slate" {
     Element: CustomElement;
     Text: CustomText;
   }
+}
+
+// --- Props for element renderer ---
+export interface RenderSlateElementProps
+  extends Omit<RenderElementProps, "element"> {
+  element: CustomElement;
+  editor: CustomEditor;
+  viewMode?: "editor" | "read";
 }

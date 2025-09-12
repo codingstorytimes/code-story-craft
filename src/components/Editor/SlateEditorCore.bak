@@ -7,7 +7,7 @@ import {
   Range,
   Path,
 } from "slate";
-import { Slate, Editable, ReactEditor } from "slate-react";
+import { Slate, Editable } from "slate-react";
 import { HistoryEditor } from "slate-history";
 
 import {
@@ -62,9 +62,7 @@ interface SlateEditorCoreProps {
   userId: string;
 }
 
-type CustomEditor = Editor & ReactEditor & HistoryEditor;
-
-const handleKeyDown = (editor: CustomEditor) => {
+const handleKeyDown = (editor) => {
   return (event: KeyboardEvent) => {
     const { selection } = editor;
     if (!selection) return;
@@ -79,12 +77,11 @@ const handleKeyDown = (editor: CustomEditor) => {
           ? Editor.before(editor, selection)
           : Editor.after(editor, selection);
       if (point) {
-        const nodeEntry = Editor.nodes(editor, {
+        const [nodeEntry] = Editor.nodes(editor, {
           at: point,
           match: (n) =>
             SlateElement.isElement(n) && n.type === ComponentType.Image,
-        }).next().value;
-
+        });
         if (nodeEntry) {
           event.preventDefault();
           Transforms.removeNodes(editor, { at: nodeEntry[1] });
@@ -94,16 +91,15 @@ const handleKeyDown = (editor: CustomEditor) => {
     }
 
     // Tab in code block
-    const blockEntry = Editor.above(editor, {
-      at: selection,
-      match: (n) => SlateElement.isElement(n),
-    });
-
+    const [block] =
+      Editor.above(editor, {
+        at: selection,
+        match: (n) => SlateElement.isElement(n),
+      }) || [];
     if (
       event.key === "Tab" &&
-      blockEntry &&
-      SlateElement.isElement(blockEntry[0]) &&
-      blockEntry[0].type === ComponentType.CodeBlock
+      SlateElement.isElement(block) &&
+      block.type === ComponentType.CodeBlock
     ) {
       event.preventDefault();
       Transforms.insertText(editor, "    ");
@@ -127,7 +123,7 @@ const handleKeyDown = (editor: CustomEditor) => {
           {
             type: ComponentType.Paragraph,
             children: [{ text: "" }],
-          },
+          } as Descendant,
           { at: Path.next(elementPath) }
         );
         Transforms.select(editor, Editor.start(editor, Path.next(elementPath)));
@@ -136,7 +132,7 @@ const handleKeyDown = (editor: CustomEditor) => {
     }
 
     // Ctrl/Cmd shortcuts
-    if (event.ctrlKey || event.metaKey) {
+    if ((event.ctrlKey || event.metaKey) && Range.isCollapsed(selection)) {
       switch (event.key.toLowerCase()) {
         case "b":
           event.preventDefault();
@@ -167,30 +163,10 @@ const handleKeyDown = (editor: CustomEditor) => {
   };
 };
 
-/* Toolbar */
-function Toolbar({
-  editor,
-  embedStoryId,
-  embedType,
-  setEmbedStoryId,
-  setEmbedType,
-  showEmbeddedStoryDialog,
-  setShowEmbeddedStoryDialog,
-  showImageDialog,
-  setShowImageDialog,
-  userId,
-}: {
-  editor: CustomEditor;
-  embedStoryId: string;
-  embedType: IEmbedType;
-  setEmbedStoryId: React.Dispatch<React.SetStateAction<string>>;
-  setEmbedType: React.Dispatch<React.SetStateAction<IEmbedType>>;
-  showEmbeddedStoryDialog: boolean;
-  setShowEmbeddedStoryDialog: React.Dispatch<React.SetStateAction<boolean>>;
-  showImageDialog: boolean;
-  setShowImageDialog: React.Dispatch<React.SetStateAction<boolean>>;
-  userId: string;
-}) {
+{
+  /* Toolbar */
+}
+function Toolbar({ editor, embedStoryId, embedType, userId }) {
   return (
     <div className="border-b border-border p-2 flex gap-1 flex-wrap">
       <Button
@@ -381,7 +357,7 @@ export default function SlateEditorCore({
       {/* Editor */}
       <div className="flex-1 p-4">
         <Slate
-          key={JSON.stringify(value)}
+          key={JSON.stringify(value)} // Force re-render when value changes
           editor={editor}
           initialValue={value}
           onValueChange={handleChange}
@@ -390,12 +366,6 @@ export default function SlateEditorCore({
             editor={editor}
             embedStoryId={embedStoryId}
             embedType={embedType}
-            setEmbedStoryId={setEmbedStoryId}
-            setEmbedType={setEmbedType}
-            showEmbeddedStoryDialog={showEmbeddedStoryDialog}
-            setShowEmbeddedStoryDialog={setShowEmbeddedStoryDialog}
-            showImageDialog={showImageDialog}
-            setShowImageDialog={setShowImageDialog}
             userId={userId}
           />
           <Editable

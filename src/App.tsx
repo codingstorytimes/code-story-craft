@@ -9,6 +9,7 @@ import Stories from "./pages/Stories";
 import Create from "./pages/Create";
 import StoryDetail from "./pages/StoryDetail";
 import NotFound from "./pages/NotFound";
+import Example from "./pages/Example";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -31,6 +32,7 @@ function App() {
             <Route path="/edit/:id" element={<Create />} />
             <Route path="/story/:id" element={<StoryDetail />} />
             <Route path="/community" element={<Stories />} />
+            <Route path="/example" element={<Example />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

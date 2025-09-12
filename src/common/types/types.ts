@@ -24,20 +24,21 @@ export interface IAuthor {
 
 export interface ICodingStory {
   id: string;
-  title: string;
-  content: string;
-  excerpt: string;
-  author: IAuthor;
-  tags: string[];
-  category: string;
-  storyType: EnumStoryType;
-  readTime: string;
-  createdAt: string;
-  updatedAt?: string;
-  isEmbeddable: boolean;
-  embedUrl?: string;
   attribution?: IAttribution;
-  embeddedStories?: IEmbeddedStory[];
-  likes: number;
+  author: IAuthor;
+  category: string;
   comments: number;
+  content: string;
+  createdAt: string;
+  embeddedStories?: IEmbeddedStory[];
+  embedUrl?: string;
+  excerpt: string;
+  isEmbeddable: boolean;
+  lastSaved?: string;
+  likes: number;
+  readTime: string;
+  storyType: EnumStoryType;
+  tags: string[];
+  title: string;
+  updatedAt?: string;
 }

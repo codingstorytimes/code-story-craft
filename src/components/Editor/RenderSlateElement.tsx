@@ -1,36 +1,17 @@
-import { BaseEditor } from "slate";
-import { RenderElementProps, ReactEditor, RenderLeafProps } from "slate-react";
+import { RenderLeafProps } from "slate-react";
 import {
-  BlockQuoteElement,
-  BulletedListElement,
   CheckListItemElement,
-  CodeBlockElement,
-  CodeElement,
   ComponentType,
   CustomElement,
-  CustomText,
   EmbeddedStoryElement,
   HeadingElement,
   ImageElement,
-  ListItemElement,
   MentionElement,
-  NumberedListElement,
-  ParagraphElement,
-  TableCellElement,
-  TableElement,
-  TableRowElement,
+  RenderSlateElementProps,
   TagElement,
-  TitleElement,
   VideoElement,
-} from "../../common/types/slate";
-
-// --- Props for element renderer ---
-export interface RenderSlateElementProps
-  extends Omit<RenderElementProps, "element"> {
-  element: CustomElement;
-  editor: BaseEditor & ReactEditor;
-  viewMode?: "editor" | "read";
-}
+} from "./slate";
+import { TableEditor } from "./plugins/TablePlugin";
 
 // --- Dispatch table with all component types ---
 const elementRenderers: Record<
@@ -97,12 +78,6 @@ const elementRenderers: Record<
     >
       {children}
     </blockquote>
-  ),
-
-  [ComponentType.Code]: ({ attributes, children }) => (
-    <code {...attributes} className="bg-muted px-1 rounded font-mono text-sm">
-      {children}
-    </code>
   ),
 
   [ComponentType.CodeBlock]: ({ attributes, children }) => (
@@ -186,6 +161,7 @@ const elementRenderers: Record<
     );
   },
 
+  /* use table renderer here
   [ComponentType.Table]: ({ attributes, children }) => (
     <table {...attributes} className="table-auto border-collapse w-full">
       <tbody>{children}</tbody>
@@ -200,7 +176,8 @@ const elementRenderers: Record<
     <td {...attributes} className="border border-muted p-2 text-sm align-top">
       {children}
     </td>
-  ),
+  )
+  */
 
   [ComponentType.Tag]: ({ attributes, element, children }) => {
     const el = element as TagElement;
@@ -224,11 +201,6 @@ const elementRenderers: Record<
       </div>
     );
   },
-  [ComponentType.Mark]: ({ attributes, children }) => (
-    <mark {...attributes} className="bg-yellow-200">
-      {children}
-    </mark>
-  ),
 
   [ComponentType.Mention]: ({ attributes, element, children }) => {
     const el = element as MentionElement;
@@ -258,11 +230,25 @@ export default function renderSlateElement({
   editor,
   viewMode = "editor",
 }: RenderSlateElementProps) {
+  // 1. Try plugin renderer first
+  const pluginRendered = (editor as TableEditor).renderElement?.({
+    attributes,
+    children,
+    element,
+    editor,
+    viewMode,
+  });
+  if (pluginRendered) {
+    return pluginRendered;
+  }
+
+  // 2. Fall back to defaults
   const renderer = elementRenderers[element.type];
   if (renderer) {
     return renderer({ attributes, children, element, editor, viewMode });
   }
-  // fallback
+
+  // 3. Final safe fallback
   return <p {...attributes}>{children}</p>;
 }
 

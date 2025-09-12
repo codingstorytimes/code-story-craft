@@ -13,16 +13,20 @@ import {
 import { withReact } from "slate-react";
 import { withHistory, HistoryEditor } from "slate-history";
 import slugify from "slugify";
+
 import {
   ComponentType,
+  CustomEditor,
   CustomElement,
   CustomText,
   IEmbedType,
-} from "@/common/types/slate";
+} from "./slate";
+import { withTable } from "./plugins/TablePlugin";
 
 export function createCustomEditor(): Editor & HistoryEditor {
-  const editor = withHistory(withReact(createEditor())) as Editor &
-    HistoryEditor;
+  const editor = withTable(
+    withHistory(withReact(createEditor()))
+  ) as CustomEditor;
 
   editor.isVoid = (element) =>
     SlateElement.isElement(element) && element.type === "image";

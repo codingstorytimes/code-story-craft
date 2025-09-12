@@ -22,7 +22,6 @@ export function ExcerptCard({ story, className }: IExcerptCardProps) {
     likes,
     comments,
     tags,
-    createdAt,
   } = story;
 
   return (
