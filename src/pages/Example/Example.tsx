@@ -1535,7 +1535,7 @@ const Leaf = ({ attributes, children, leaf }) => {
 // Editor
 // ------------------------
 export function SlateEditor({ toolbarGroups, tools }) {
-  const editor = useMemo(() => withReact(createEditor()), []);
+  const editor = useMemo(() => withReact(createEditor()), []) as CustomEditor;
   const [value, setValue] = useState<Descendant[]>([
     {
       type: ComponentType.Paragraph,

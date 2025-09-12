@@ -1,6 +1,5 @@
 import React, { JSX, useState, useEffect, useCallback } from "react";
 import {
-  BaseEditor,
   Editor,
   Range,
   Transforms,
@@ -9,51 +8,29 @@ import {
   NodeEntry,
   Node,
 } from "slate";
-import { ReactEditor, RenderElementProps } from "slate-react";
+import {
+  ReactEditor,
+  RenderElementProps as SlateRenderElementProps,
+} from "slate-react";
 import { EventEmitter } from "events";
 import {
   CustomEditor,
   CustomElement,
-  EditorElementPlugin,
-  PluginEditor,
-} from "../slate";
+  ComponentType,
+  TableElement,
+  TableRowElement,
+  TableCellElement,
+} from "../../slate";
 import { HistoryEditor } from "slate-history";
+import { TableContextMenu } from "./TableContextMenu";
 
 // --- Props for element renderer ---
 export interface RenderSlateElementProps
-  extends Omit<RenderElementProps, "element"> {
+  extends Omit<SlateRenderElementProps, "element"> {
   element: CustomElement;
   editor: CustomEditor;
   viewMode?: "editor" | "read";
 }
-
-// -----------------------------
-// Constants for element types
-// -----------------------------
-export enum ComponentType {
-  Paragraph = "paragraph",
-  TableCell = "table-cell",
-  TableRow = "table-row",
-  Table = "table",
-}
-
-// -----------------------------
-// Types
-// -----------------------------
-export type TableCellElement = {
-  type: ComponentType.TableCell;
-  children: Descendant[];
-};
-
-export type TableRowElement = {
-  type: ComponentType.TableRow;
-  children: TableCellElement[];
-};
-
-export type TableElement = {
-  type: ComponentType.Table;
-  children: TableRowElement[];
-};
 
 // -----------------------------
 // Define the extension interface
@@ -70,17 +47,6 @@ export interface TableUtils {
 // -----------------------------
 // Generic element plugin typing
 // -----------------------------
-
-export interface TableEditor
-  extends BaseEditor,
-    ReactEditor,
-    HistoryEditor,
-    PluginEditor {
-  table: { tableUtils: TableUtils };
-  __prevSelection: Range | null;
-  selectionEvents?: EventEmitter;
-  onKeyDown?: (event: React.KeyboardEvent) => void;
-}
 
 // -----------------------------
 // Table/Cell Selection helper (reactive)
@@ -138,6 +104,22 @@ export function useSelected<T extends TableEditor>({
   return selected;
 }
 
+const TableCellWithSelection = (
+  props: RenderSlateElementProps & { editor: TableEditor }
+) => {
+  const { attributes, children, element, editor } = props;
+  const selected = useSelected({ element, editor });
+  return (
+    <td
+      {...attributes}
+      className={`border border-gray-300 p-3 min-w-[100px] bg-white hover:bg-gray-50 focus-within:bg-blue-50 transition-colors ${
+        selected ? "bg-blue-100" : ""
+      }`}
+    >
+      {children}
+    </td>
+  );
+};
 // -----------------------------
 // Extend a base editor with table utilities
 // -----------------------------
@@ -156,20 +138,28 @@ export const withTable = <T extends CustomEditor>(
     tableEditor.selectionEvents || new EventEmitter();
   tableEditor.__prevSelection = tableEditor.__prevSelection || null;
 
-  const elements = new Map<string, EditorElementPlugin>();
-  if (!tableEditor.registerElement) {
-    tableEditor.registerElement = (plugin: EditorElementPlugin) => {
-      elements.set(plugin.type, plugin);
-    };
-  }
-
-  tableEditor.renderElement = (props: RenderSlateElementProps) => {
-    const plugin = elements.get((props.element as SlateElement).type);
-    if (plugin) {
-      return plugin.render({ ...props, editor: tableEditor });
-    }
-    return <p {...props.attributes}>{props.children}</p>;
-  };
+  tableEditor.registerElement({
+    type: ComponentType.Table,
+    render: ({ attributes, children, element, editor }) => (
+      <TableContextMenu editor={editor as TableEditor} element={element}>
+        <div {...attributes} className="my-4 overflow-x-auto">
+          <table className="w-full border-collapse border border-gray-300 rounded-lg overflow-hidden">
+            <tbody>{children}</tbody>
+          </table>
+        </div>
+      </TableContextMenu>
+    ),
+  });
+  tableEditor.registerElement({
+    type: ComponentType.TableRow,
+    render: ({ attributes, children }) => <tr {...attributes}>{children}</tr>,
+  });
+  tableEditor.registerElement({
+    type: ComponentType.TableCell,
+    render: (props) => (
+      <TableCellWithSelection {...props} editor={props.editor as TableEditor} />
+    ),
+  });
 
   // =============================================================
   // Context Menu Buttons & Toolbar Buttons Helpers

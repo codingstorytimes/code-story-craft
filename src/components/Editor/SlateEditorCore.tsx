@@ -10,50 +10,15 @@ import {
 import { Slate, Editable, ReactEditor } from "slate-react";
 import { HistoryEditor } from "slate-history";
 
-import {
-  Bold,
-  Italic,
-  Code,
-  Hash,
-  Quote,
-  Heading1,
-  Underline as UnderlineIcon,
-  Image as ImageIcon,
-  Plus,
-} from "lucide-react";
-
-import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-
-import StoryAutocomplete from "@/components/StoryAutocomplete";
-import DialogPostUploadImage from "./DialogPostUploadImage";
 import RenderSlateElement, { RenderLeaf } from "./RenderSlateElement";
 
 import { IEmbedType, ComponentType } from "./slate";
 import {
-  insertCodeBlock,
-  insertEmbeddedStory,
-  insertHeadingBlock,
-  insertImage,
-  insertQuote,
-  isMarkActive,
-  toggleMark,
   updateHeadingSlugs,
   createCustomEditor,
+  toggleMark,
 } from "./editorUtils";
+//import { allTools } from "./plugins/plugins";
 
 interface SlateEditorCoreProps {
   value: Descendant[];
@@ -168,188 +133,15 @@ const handleKeyDown = (editor: CustomEditor) => {
 };
 
 /* Toolbar */
-function Toolbar({
-  editor,
-  embedStoryId,
-  embedType,
-  setEmbedStoryId,
-  setEmbedType,
-  showEmbeddedStoryDialog,
-  setShowEmbeddedStoryDialog,
-  showImageDialog,
-  setShowImageDialog,
-  userId,
-}: {
-  editor: CustomEditor;
-  embedStoryId: string;
-  embedType: IEmbedType;
-  setEmbedStoryId: React.Dispatch<React.SetStateAction<string>>;
-  setEmbedType: React.Dispatch<React.SetStateAction<IEmbedType>>;
-  showEmbeddedStoryDialog: boolean;
-  setShowEmbeddedStoryDialog: React.Dispatch<React.SetStateAction<boolean>>;
-  showImageDialog: boolean;
-  setShowImageDialog: React.Dispatch<React.SetStateAction<boolean>>;
-  userId: string;
-}) {
+function Toolbar({ editor, userId }: { editor: CustomEditor; userId: string }) {
+  const [showEmbeddedStoryDialog, setShowEmbeddedStoryDialog] =
+    React.useState(false);
+  const [embedStoryId, setEmbedStoryId] = React.useState("");
+  const [embedType, setEmbedType] = React.useState<IEmbedType>("inline");
+
   return (
     <div className="border-b border-border p-2 flex gap-1 flex-wrap">
-      <Button
-        type="button"
-        variant="ghost"
-        size="sm"
-        className={isMarkActive(editor, "bold") ? "bg-accent" : ""}
-        onMouseDown={(e) => {
-          e.preventDefault();
-          toggleMark(editor, "bold");
-        }}
-      >
-        <Bold className="w-4 h-4" />
-      </Button>
-      <Button
-        type="button"
-        variant="ghost"
-        size="sm"
-        className={isMarkActive(editor, "italic") ? "bg-accent" : ""}
-        onMouseDown={(e) => {
-          e.preventDefault();
-          toggleMark(editor, "italic");
-        }}
-      >
-        <Italic className="w-4 h-4" />
-      </Button>
-      <Button
-        type="button"
-        variant="ghost"
-        size="sm"
-        className={isMarkActive(editor, "underline") ? "bg-accent" : ""}
-        onMouseDown={(e) => {
-          e.preventDefault();
-          toggleMark(editor, "underline");
-        }}
-      >
-        <UnderlineIcon className="w-4 h-4" />
-      </Button>
-      <Button
-        type="button"
-        variant="ghost"
-        size="sm"
-        className={isMarkActive(editor, "code") ? "bg-accent" : ""}
-        onMouseDown={(e) => {
-          e.preventDefault();
-          toggleMark(editor, "code");
-        }}
-      >
-        <Code className="w-4 h-4" />
-      </Button>
-
-      <div className="w-px h-6 bg-border mx-1" />
-
-      <Button
-        type="button"
-        variant="ghost"
-        size="sm"
-        onMouseDown={(e) => {
-          e.preventDefault();
-          insertHeadingBlock(editor);
-        }}
-      >
-        <Heading1 className="w-4 h-4" />
-      </Button>
-      <Button
-        type="button"
-        variant="ghost"
-        size="sm"
-        onMouseDown={(e) => {
-          e.preventDefault();
-          insertCodeBlock(editor);
-        }}
-      >
-        <Hash className="w-4 h-4" />
-      </Button>
-      <Button
-        type="button"
-        variant="ghost"
-        size="sm"
-        onMouseDown={(e) => {
-          e.preventDefault();
-          insertQuote(editor);
-        }}
-      >
-        <Quote className="w-4 h-4" />
-      </Button>
-      <Button
-        type="button"
-        variant="ghost"
-        size="sm"
-        onMouseDown={(e) => {
-          e.preventDefault();
-          setShowImageDialog(true);
-        }}
-      >
-        <ImageIcon className="w-4 h-4" />
-      </Button>
-
-      <Dialog
-        open={showEmbeddedStoryDialog}
-        onOpenChange={setShowEmbeddedStoryDialog}
-      >
-        <DialogTrigger asChild>
-          <Button type="button" variant="ghost" size="sm">
-            <Plus className="w-4 h-4" />
-          </Button>
-        </DialogTrigger>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Embed Story</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <label className="text-sm font-medium">Select Story</label>
-              <StoryAutocomplete
-                onSelect={setEmbedStoryId}
-                placeholder="Search and select a story to embed..."
-              />
-            </div>
-            <div>
-              <label className="text-sm font-medium">Display Type</label>
-              <Select
-                value={embedType}
-                onValueChange={(value: IEmbedType) => setEmbedType(value)}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="mini">Mini Card</SelectItem>
-                  <SelectItem value="inline">Inline Preview</SelectItem>
-                  <SelectItem value="full">Full Content</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <Button
-              onClick={() => {
-                setShowEmbeddedStoryDialog(false);
-                setEmbedStoryId("");
-                insertEmbeddedStory(editor, embedStoryId, embedType);
-              }}
-              className="w-full"
-              disabled={!embedStoryId}
-            >
-              Insert Embed
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      <DialogPostUploadImage
-        cropMode="flex"
-        isOpen={showImageDialog}
-        onClose={() => setShowImageDialog(false)}
-        insertImage={(url) => {
-          insertImage(editor, url);
-        }}
-        userId={userId}
-      />
+      //Toolbars
     </div>
   );
 }
@@ -361,12 +153,6 @@ export default function SlateEditorCore({
   userId,
 }: SlateEditorCoreProps) {
   const editor = useMemo(() => createCustomEditor(), []);
-
-  const [showEmbeddedStoryDialog, setShowEmbeddedStoryDialog] =
-    React.useState(false);
-  const [showImageDialog, setShowImageDialog] = React.useState(false);
-  const [embedStoryId, setEmbedStoryId] = React.useState("");
-  const [embedType, setEmbedType] = React.useState<IEmbedType>("inline");
 
   const handleChange = useCallback(
     (newValue: Descendant[]) => {
@@ -386,18 +172,7 @@ export default function SlateEditorCore({
           initialValue={value}
           onValueChange={handleChange}
         >
-          <Toolbar
-            editor={editor}
-            embedStoryId={embedStoryId}
-            embedType={embedType}
-            setEmbedStoryId={setEmbedStoryId}
-            setEmbedType={setEmbedType}
-            showEmbeddedStoryDialog={showEmbeddedStoryDialog}
-            setShowEmbeddedStoryDialog={setShowEmbeddedStoryDialog}
-            showImageDialog={showImageDialog}
-            setShowImageDialog={setShowImageDialog}
-            userId={userId}
-          />
+          <Toolbar editor={editor} userId={userId} />
           <Editable
             renderElement={(props) => (
               <RenderSlateElement

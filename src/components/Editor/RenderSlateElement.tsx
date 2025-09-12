@@ -11,7 +11,6 @@ import {
   TagElement,
   VideoElement,
 } from "./slate";
-import { TableEditor } from "./plugins/TablePlugin";
 
 // --- Dispatch table with all component types ---
 const elementRenderers: Record<
@@ -161,24 +160,6 @@ const elementRenderers: Record<
     );
   },
 
-  /* use table renderer here
-  [ComponentType.Table]: ({ attributes, children }) => (
-    <table {...attributes} className="table-auto border-collapse w-full">
-      <tbody>{children}</tbody>
-    </table>
-  ),
-
-  [ComponentType.TableRow]: ({ attributes, children }) => (
-    <tr {...attributes}>{children}</tr>
-  ),
-
-  [ComponentType.TableCell]: ({ attributes, children }) => (
-    <td {...attributes} className="border border-muted p-2 text-sm align-top">
-      {children}
-    </td>
-  )
-  */
-
   [ComponentType.Tag]: ({ attributes, element, children }) => {
     const el = element as TagElement;
     return (
@@ -230,25 +211,18 @@ export default function renderSlateElement({
   editor,
   viewMode = "editor",
 }: RenderSlateElementProps) {
-  // 1. Try plugin renderer first
-  const pluginRendered = (editor as TableEditor).renderElement?.({
-    attributes,
-    children,
-    element,
-    editor,
-    viewMode,
-  });
-  if (pluginRendered) {
-    return pluginRendered;
+  // The plugin chain will handle rendering for elements it knows about.
+  // We start the chain here.
+  const pluginElement = editor.renderElement({ attributes, children, element });
+  if (pluginElement) {
+    return pluginElement;
   }
 
-  // 2. Fall back to defaults
   const renderer = elementRenderers[element.type];
+
   if (renderer) {
     return renderer({ attributes, children, element, editor, viewMode });
   }
-
-  // 3. Final safe fallback
   return <p {...attributes}>{children}</p>;
 }
 

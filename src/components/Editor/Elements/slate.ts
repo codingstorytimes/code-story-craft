@@ -21,6 +21,7 @@ import {
   ParagraphElement,
   TagElement,
   TitleElement,
+  ThematicBreakElement,
   VideoElement,
 } from "./Elements";
 import { ImageElement } from "./plugins/Image/ImageElement";
@@ -149,7 +150,6 @@ export type CustomElement =
   | HeadingSixElement
   | ImageElement
   | LinkElement
-  | ListItemElement
   | MentionElement
   | NumberedListElement
   | ParagraphElement

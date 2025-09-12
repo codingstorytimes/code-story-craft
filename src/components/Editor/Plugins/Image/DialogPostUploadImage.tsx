@@ -2,7 +2,7 @@ import { useCallback, useRef, useState } from "react";
 import { useFormik } from "formik";
 import { z } from "zod";
 import { toFormikValidationSchema } from "zod-formik-adapter";
-import { Button } from "../ui/button";
+import { Button } from "../../../ui/button";
 
 import Cropper from "react-cropper";
 import "cropperjs/dist/cropper.css";
@@ -13,7 +13,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
-} from "../ui/dialog";
+} from "../../../ui/dialog";
 
 interface DialogPostUploadImageProps {
   isOpen: boolean;

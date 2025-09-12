@@ -20,26 +20,36 @@ import {
   CustomEditor,
   CustomElement,
   CustomText,
+  EditorElementPlugin,
   IEmbedType,
+  PluginEditor,
 } from "./slate";
-import { withTable } from "./Plugins/Table/TablePlugin.bak3";
+import { withTable } from "./plugins/Table/TablePlugin";
 import { withReact, Slate } from "slate-react";
-import { withMention } from "./Plugins/Mention/MentionPlugin";
+import { withMention } from "./plugins/Mention/MentionPlugin";
+import { withImage } from "./plugins/Image/ImagePlugin";
 
-export function createCustomEditor(): CustomEditor {
-  const editor = withMention(
-    withTable(withHistory(withReact(createEditor())))
-  ) as CustomEditor;
+export function createCustomEditor(): Editor & HistoryEditor {
+  let editor = withHistory(withReact(createEditor())) as CustomEditor;
 
-  // Define a default renderElement to be called at the end of the plugin chain.
-  editor.renderElement = (props: RenderElementProps) => (
-    <p {...props.attributes}>{props.children}</p>
-  );
+  const elementPlugins = new Map<string, EditorElementPlugin>();
+  editor.registerElement = (plugin) => {
+    elementPlugins.set(plugin.type, plugin);
+  };
+
+  editor.renderElement = (props) => {
+    const plugin = elementPlugins.get(props.element.type);
+    if (plugin) {
+      return plugin.render({ ...props, editor });
+    }
+  };
+
+  editor = withImage(withMention(withTable(editor)));
 
   editor.isVoid = (element) =>
     SlateElement.isElement(element) && element.type === "image";
   editor.isInline = (element) =>
-    SlateElement.isElement(element) && element.type === "image";
+    SlateElement.isElement(element) && element.type === ComponentType.Mention;
 
   const { insertBreak } = editor;
   editor.insertBreak = () => {
@@ -171,3 +181,19 @@ export function updateHeadingSlugs(editor: Editor) {
     }
   });
 }
+
+export const insertEmbeddedStory = (
+  editor: Editor,
+  embedStoryId: string,
+  embedType: IEmbedType
+) => {
+  if (!embedStoryId) return;
+  const embedBlock: CustomElement = {
+    type: ComponentType.EmbeddedStory,
+    storyId: embedStoryId,
+    embedType,
+    children: [{ text: "" }],
+  };
+  Transforms.insertNodes(editor, embedBlock as Descendant);
+  ensureLastParagraph(editor);
+};
