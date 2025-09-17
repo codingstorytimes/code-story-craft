@@ -37,9 +37,9 @@ export function createCustomEditor(): Editor & HistoryEditor {
 
   const { insertBreak } = editor;
   editor.insertBreak = () => {
-    const [match] = Editor.nodes(editor, {
+const [match] = Editor.nodes(editor, {
       match: (n) =>
-        SlateElement.isElement(n) && n.type === ComponentType.CodeBlock,
+        SlateElement.isElement(n) && (n as any).type === ComponentType.CodeBlock,
     });
 
     if (match) {

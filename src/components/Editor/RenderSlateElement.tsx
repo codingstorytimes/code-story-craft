@@ -1,7 +1,7 @@
 import { RenderLeafProps } from "slate-react";
 
 import { ImageElement } from "./Plugins/Image/ImageElement";
-import { MentionElement } from "./Plugins/Mention/DialogInsertMention";
+import { MentionElement } from "./Plugins/Mention/MentionPlugin";
 import { RenderSlateElementProps, ComponentType, CustomElement } from "./slate";
 import { TagElement } from "./TagElement";
 import { VideoElement } from "./VideoElement";
@@ -9,10 +9,10 @@ import { CheckListItemElement } from "./Elements/CheckListItemElement";
 import { EmbeddedStoryElement } from "./Plugins/EmbeddedStory/EmbeddedStoryPlugin";
 
 // --- Dispatch table with all component types ---
-const elementRenderers: Record<
-  CustomElement["type"],
+const elementRenderers: Partial<Record<
+  ComponentType,
   (props: RenderSlateElementProps) => JSX.Element
-> = {
+>> = {
   [ComponentType.Paragraph]: ({ attributes, children }) => (
     <p {...attributes}>{children}</p>
   ),
@@ -177,7 +177,7 @@ const elementRenderers: Record<
         contentEditable={false}
         className="px-1 py-0.5 rounded bg-blue-100 text-blue-800 text-xs"
       >
-        @{el.mention}
+        @{el.character}
         {children}
       </span>
     );

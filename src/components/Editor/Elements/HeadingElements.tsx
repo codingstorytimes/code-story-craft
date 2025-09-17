@@ -18,6 +18,7 @@ export type HeadingElement = {
   type: ComponentType.Heading;
   headingLevel: HeadingLevelType;
   children: Descendant[];
+  slug?: string;
 };
 
 const headingIconMap: Record<HeadingElement["headingLevel"], LucideIcon> = {

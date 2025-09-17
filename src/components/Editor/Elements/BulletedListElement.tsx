@@ -1,47 +1,56 @@
-import { Descendant, Editor, Transforms } from "slate";
+import { Descendant, Editor, Transforms, Element as SlateElement } from "slate";
 import { ComponentType, CustomEditor } from "../slate";
 import { ensureLastParagraph } from "../editorUtils";
 
-import { ListItemElement } from "./ListItemElement";
 import { List } from "lucide-react";
 import { EditorButton } from "../Toolbar/EditorButton";
 
 export type BulletedListElement = {
   type: ComponentType.BulletedList;
-  children: ListItemElement[];
+  children: Descendant[];
 };
 
-/**
- * Toggles a bulleted list on or off.
- * If the current selection is within a list, it unwraps the list.
- * If the current selection is not in a list, it transforms the current
- * paragraph into a new bulleted list.
- */
 export function toggleBulletedList(editor: Editor) {
-  const [match] = Editor.nodes(editor, {
-    match: (n) => !Editor.isEditor(n) && n.type === ComponentType.BulletedList,
+  const [inList] = Editor.nodes(editor, {
+    match: (n) =>
+      SlateElement.isElement(n) && (n as any).type === ComponentType.BulletedList,
   });
 
-  // If already in a list, unwrap it.
-  if (match) {
+  if (inList) {
+    // unwrap list and turn items back into paragraphs
     Transforms.unwrapNodes(editor, {
       match: (n) =>
-        !Editor.isEditor(n) && n.type === ComponentType.BulletedList,
+        SlateElement.isElement(n) && (n as any).type === ComponentType.BulletedList,
       split: true,
     });
+    Transforms.setNodes(
+      editor,
+      { type: ComponentType.Paragraph } as any,
+      {
+        match: (n) =>
+          SlateElement.isElement(n) && (n as any).type === ComponentType.ListItem,
+      }
+    );
     return;
   }
 
-  // If not in a list, wrap the current paragraph in a new list.
-  const newListItem: ListItemElement = {
-    type: ComponentType.ListItem,
-    children: [{ text: "" }],
-  };
+  // Convert current block into list-item then wrap with bulleted-list
+  Transforms.setNodes(
+    editor,
+    { type: ComponentType.ListItem } as any,
+    {
+      match: (n) => SlateElement.isElement(n) && Editor.isBlock(editor, n),
+    }
+  );
 
-  Transforms.wrapNodes(editor, {
-    type: ComponentType.BulletedList,
-    children: [newListItem],
-  } as Descendant);
+  Transforms.wrapNodes(
+    editor,
+    { type: ComponentType.BulletedList, children: [] } as any,
+    {
+      match: (n) =>
+        SlateElement.isElement(n) && (n as any).type === ComponentType.ListItem,
+    }
+  );
 
   ensureLastParagraph(editor);
 }

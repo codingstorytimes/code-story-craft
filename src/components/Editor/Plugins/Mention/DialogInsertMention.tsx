@@ -11,12 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ComponentType, CustomElement } from "../../slate";
-
-export type MentionElement = {
-  type: ComponentType.Mention;
-  mention: string;
-  children: { text: string }[];
-};
+import { MentionElement } from "./MentionPlugin";
 import { AtSign } from "lucide-react";
 
 interface DialogInsertMentionProps {
@@ -39,11 +34,11 @@ export default function DialogInsertMention({
 
     const mentionElement: MentionElement = {
       type: ComponentType.Mention,
-      mention: mention,
+      character: mention,
       children: [{ text: "" }],
-    };
+    } as any;
 
-    Transforms.insertNodes(editor, mentionElement);
+    Transforms.insertNodes(editor, mentionElement as unknown as Descendant);
     Transforms.move(editor);
     onClose();
     setCharacter("");
@@ -72,13 +67,13 @@ export default function DialogInsertMention({
 }
 
 export function insertMention(editor: Editor, character: string) {
-  const mention: CustomElement = {
+  const mention: MentionElement = {
     type: ComponentType.Mention,
     character,
     children: [{ text: "" }],
-  };
+  } as any;
 
-  Transforms.insertNodes(editor, mention as Descendant);
+  Transforms.insertNodes(editor, mention as unknown as Descendant);
   Transforms.move(editor);
 }
 

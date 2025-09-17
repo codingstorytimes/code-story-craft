@@ -87,17 +87,5 @@ export async function deleteImageBackend(imageUrl: string) {
   }
 }
 
-export const ImagePlugin = {
-  id: "image",
-  withPlugin: withImage,
-  toolbarButtons: [
-    {
-      id: "image",
-      group: "media",
-      tooltip: "Insert Image",
-      render: (editor: CustomEditor, options?: { userId: string }) => (
-        <ImageToolbarButton userId={options?.userId || ""} />
-      ),
-    },
-  ],
-};
+// Note: toolbar integration is handled via GroupedToolbar; exporting only the enhancer
+export { withImage };

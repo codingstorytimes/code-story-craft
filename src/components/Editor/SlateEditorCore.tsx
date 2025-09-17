@@ -60,11 +60,11 @@ const handleKeyDown = (editor: CustomEditor) => {
       match: (n) => SlateElement.isElement(n),
     });
 
-    if (
+if (
       event.key === "Tab" &&
       blockEntry &&
       SlateElement.isElement(blockEntry[0]) &&
-      blockEntry[0].type === ComponentType.CodeBlock
+      (blockEntry[0] as any).type === ComponentType.CodeBlock
     ) {
       event.preventDefault();
       Transforms.insertText(editor, "    ");
