@@ -6,7 +6,7 @@ import MarkButtons from "../Elements/MarkButtons";
 import EmbeddedStoryToolbarButton from "../Plugins/EmbeddedStory/DialogEmbeddedStory";
 import { TableToolbarButton } from "../Plugins/Table/TableToolbarButton";
 import { ImageToolbarButton } from "../Plugins/Image/ImageToolbarButton";
-import { MentionToolbarButton } from "../Plugins/Mention/MentionToolbarButton";
+import { MentionToolbarButton } from "./MentionToolbarButton";
 import { Quote, Code, List, ListOrdered } from "lucide-react";
 
 import {

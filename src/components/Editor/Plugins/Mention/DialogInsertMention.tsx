@@ -37,13 +37,13 @@ export default function DialogInsertMention({
   const handleInsert = () => {
     if (!mention) return;
 
-    const mention: MentionElement = {
+    const mentionElement: MentionElement = {
       type: ComponentType.Mention,
       mention: mention,
       children: [{ text: "" }],
     };
 
-    Transforms.insertNodes(editor, mention);
+    Transforms.insertNodes(editor, mentionElement);
     Transforms.move(editor);
     onClose();
     setCharacter("");

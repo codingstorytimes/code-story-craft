@@ -55,7 +55,15 @@ const ImageToolbarButton = ({ userId }: { userId: string }) => {
       <DialogPostUploadImage
         isOpen={showImageDialog}
         onClose={() => setShowImageDialog(false)}
-        insertImage={(url) => insertImage(editor, url)}
+        insertImage={(url) => {
+          const image: ImageElement = {
+            type: ComponentType.Image,
+            url,
+            children: [{ text: "" }],
+          };
+          Transforms.insertNodes(editor, image as Descendant);
+          ensureLastParagraph(editor);
+        }}
         userId={userId}
       />
     </>

@@ -1,13 +1,13 @@
 import { useState } from "react";
-import { Descendant, Transforms, Range, Element as SlateElement } from "slate";
+import { Descendant, Transforms, Range, Element as SlateElement, Editor } from "slate";
 import { Link } from "lucide-react";
 import { EditorButton as ToolbarButton } from "../Toolbar/EditorButton";
-import { ComponentType, CustomEditor } from "../slate";
+import { ComponentType, CustomEditor, CustomText } from "../slate";
 
 export type LinkElement = {
   type: ComponentType.Link;
   url: string;
-  children: Descendant[];
+  children: CustomText[];
 };
 
 export const LinkModal = ({
@@ -63,9 +63,9 @@ export const LinkModal = ({
 
 export const isLinkActive = (editor: CustomEditor) => {
   const [link] = Array.from(
-    editor.nodes(editor, {
+    Editor.nodes(editor, {
       match: (n) =>
-        !editor.isEditor(n) &&
+        !Editor.isEditor(n) &&
         SlateElement.isElement(n) &&
         n.type === ComponentType.Link,
     })
@@ -83,7 +83,7 @@ const wrapLink = (editor: CustomEditor, url: string) => {
   if (isLinkActive(editor)) {
     Transforms.unwrapNodes(editor, {
       match: (n) =>
-        !CustomEditor.isEditor(n) &&
+        !Editor.isEditor(n) &&
         SlateElement.isElement(n) &&
         n.type === ComponentType.Link,
     });
@@ -111,7 +111,8 @@ export const LinkToolbarButton = ({ editor }: { editor: CustomEditor }) => {
   return (
     <>
       <ToolbarButton
-        icon={<Link className="w-5 h-5" />}
+        editor={editor}
+        icon={Link}
         onAction={() => setShowLinkModal(true)}
         isActive={isLinkActive(editor)}
       />

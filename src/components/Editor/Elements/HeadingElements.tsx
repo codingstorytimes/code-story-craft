@@ -10,7 +10,7 @@ import {
   LucideIcon,
 } from "lucide-react";
 import { ComponentType } from "../slate";
-import EditorButton from "../Toolbar/EditorButton";
+import { EditorButton } from "../Toolbar/EditorButton";
 
 export type HeadingLevelType = 1 | 2 | 3 | 4 | 5 | 6;
 

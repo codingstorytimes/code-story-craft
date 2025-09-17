@@ -1,12 +1,12 @@
 import { Editor } from "slate";
 import { RenderElementProps } from "slate-react";
-import { CustomEditor, EditorElementPlugin } from "./slate";
+import { CustomEditor } from "./slate";
 
 /**
  * A Map to store the registered element renderers.
  * The key is the element `type`, and the value is the render function.
  */
-const elementRenderers = new Map<string, EditorElementPlugin["render"]>();
+const elementRenderers = new Map<string, any>();
 
 /**
  * A higher-order function that enhances the Slate editor with plugin capabilities.
