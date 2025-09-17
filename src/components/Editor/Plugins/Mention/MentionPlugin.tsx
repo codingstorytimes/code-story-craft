@@ -4,7 +4,7 @@ import { ComponentType, CustomEditor } from "../../slate";
 import { AtSign } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import DialogInsertMention from "./DialogInsertMention";
-import { IEditorPlugin } from "../plugins";
+
 import { Descendant } from "slate";
 
 export type MentionElement = {
@@ -59,17 +59,4 @@ const MentionToolbarButton = () => {
       />
     </>
   );
-};
-
-export const MentionPlugin: IEditorPlugin = {
-  id: "mention",
-  withPlugin: withMention,
-  toolbarButtons: [
-    {
-      id: "mention",
-      group: "inserts",
-      tooltip: "Mention User",
-      render: () => <MentionToolbarButton />,
-    },
-  ],
 };

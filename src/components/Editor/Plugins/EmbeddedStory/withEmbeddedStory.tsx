@@ -1,5 +1,6 @@
 import React from "react";
-import { ComponentType, CustomEditor, EmbeddedStoryElement } from "../../slate";
+import { ComponentType, CustomEditor } from "../../slate";
+import { EmbeddedStoryElement } from "./EmbeddedStoryPlugin";
 
 export const withEmbeddedStory = <T extends CustomEditor>(editor: T): T => {
   editor.registerElement({

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useSlate } from "slate-react";
-import { Transforms } from "slate";
+import { Descendant, Editor, Transforms } from "slate";
 import {
   Dialog,
   DialogContent,
@@ -10,11 +10,11 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ComponentType } from "../../slate";
+import { ComponentType, CustomElement } from "../../slate";
 
 export type MentionElement = {
   type: ComponentType.Mention;
-  character: string;
+  mention: string;
   children: { text: string }[];
 };
 import { AtSign } from "lucide-react";
@@ -32,18 +32,19 @@ export default function DialogInsertMention({
 }: DialogInsertMentionProps) {
   const slateEditor = useSlate();
   const editor = externalEditor || slateEditor;
-  const [userId, setCharacter] = useState("");
+  const [mention, setCharacter] = useState("");
 
   const handleInsert = () => {
-    if (!userId) return;
+    if (!mention) return;
 
     const mention: MentionElement = {
       type: ComponentType.Mention,
-      character: userId,
+      mention: mention,
       children: [{ text: "" }],
     };
 
     Transforms.insertNodes(editor, mention);
+    Transforms.move(editor);
     onClose();
     setCharacter("");
   };
@@ -56,12 +57,12 @@ export default function DialogInsertMention({
         </DialogHeader>
         <div className="space-y-4">
           <Input
-            value={userId}
+            value={mention}
             onChange={(e) => setCharacter(e.target.value)}
             placeholder="Character to mention..."
             autoFocus
           />
-          <Button onClick={handleInsert} disabled={!userId} className="w-full">
+          <Button onClick={handleInsert} disabled={!mention} className="w-full">
             Insert Mention
           </Button>
         </div>
@@ -69,17 +70,29 @@ export default function DialogInsertMention({
     </Dialog>
   );
 }
+
+export function insertMention(editor: Editor, character: string) {
+  const mention: CustomElement = {
+    type: ComponentType.Mention,
+    character,
+    children: [{ text: "" }],
+  };
+
+  Transforms.insertNodes(editor, mention as Descendant);
+  Transforms.move(editor);
+}
+
 /*
 export const InsertMentionModal = ({ onClose }) => {
   const editor = useSlate();
-  const [userId, setUserId] = useState("");
+  const [mention, setUserId] = useState("");
 
   const insertMention = () => {
-    if (!userId) return;
+    if (!mention) return;
     const mention: MentionElement = {
       type: ComponentType.Mention,
-      userId,
-      children: [{ text: "@" + userId }],
+      mention,
+      children: [{ text: "@" + mention }],
     };
     Transforms.insertNodes(editor, mention);
     onClose();
@@ -105,7 +118,7 @@ export const InsertMentionModal = ({ onClose }) => {
 
         <input
           type="text"
-          value={userId}
+          value={mention}
           onChange={(e) => setUserId(e.target.value)}
           placeholder="Enter User ID"
           className="border border-gray-300 p-3 w-full mb-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
@@ -126,7 +139,7 @@ export const InsertMentionModal = ({ onClose }) => {
               e.preventDefault();
               insertMention();
             }}
-            disabled={!userId}
+            disabled={!mention}
           >
             Insert
           </Button>

@@ -2,15 +2,14 @@ import React, { useState } from "react";
 import { useSlateStatic } from "slate-react";
 import { ImageIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  ComponentType,
-  CustomEditor,
-  IEmbedType,
-  ImageElement,
-} from "../../slate";
-import { insertImage } from "../../editorUtils";
+
+import { ensureLastParagraph } from "../../editorUtils";
 import DialogPostUploadImage from "./DialogPostUploadImage";
-// Remove deprecated IEditorPlugin import
+import { Editor, Transforms, Descendant } from "slate";
+
+import { ComponentType, CustomEditor, CustomElement } from "../../slate";
+
+import { ImageElement } from "./ImageElement";
 
 export const withImage = <T extends CustomEditor>(editor: T): T => {
   const { isVoid } = editor;
@@ -63,6 +62,23 @@ const ImageToolbarButton = ({ userId }: { userId: string }) => {
   );
 };
 
+export async function deleteImageBackend(imageUrl: string) {
+  try {
+    const imagePath = imageUrl.replace(
+      `${window.location.origin}/storage/`,
+      ""
+    );
+
+    await fetch("/api/destroyimage", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ imageupload_path: imagePath }),
+    });
+  } catch (err) {
+    console.error("Error deleting image:", err);
+  }
+}
+
 export const ImagePlugin = {
   id: "image",
   withPlugin: withImage,
@@ -71,7 +87,9 @@ export const ImagePlugin = {
       id: "image",
       group: "media",
       tooltip: "Insert Image",
-      render: (editor: CustomEditor, options?: { userId: string }) => <ImageToolbarButton userId={options?.userId || ""} />,
+      render: (editor: CustomEditor, options?: { userId: string }) => (
+        <ImageToolbarButton userId={options?.userId || ""} />
+      ),
     },
   ],
 };

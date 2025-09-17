@@ -1,4 +1,4 @@
-import { CustomText, ComponentType } from "./slate";
+import { CustomText, ComponentType } from "../slate";
 
 export type EditableVoidElement = {
   type: ComponentType.EditableVoid;

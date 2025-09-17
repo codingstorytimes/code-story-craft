@@ -1,6 +1,18 @@
-import { Descendant, Editor, Transforms } from "slate";
+import { Editor, Transforms, Descendant } from "slate";
 import { ensureLastParagraph } from "../../editorUtils";
-import { IEmbedType, ComponentType, CustomElement } from "../../slate";
+import {
+  CustomText,
+  IEmbedType,
+  ComponentType,
+  CustomElement,
+} from "../../slate";
+
+export type EmbeddedStoryElement = {
+  type: ComponentType.EmbeddedStory;
+  storyId: string;
+  embedType?: IEmbedType;
+  children: CustomText[];
+};
 
 export const insertEmbeddedStory = (
   editor: Editor,
@@ -17,3 +29,5 @@ export const insertEmbeddedStory = (
   Transforms.insertNodes(editor, embedBlock as Descendant);
   ensureLastParagraph(editor);
 };
+
+export const EmbeddedStoryToolbarButton = () => {};

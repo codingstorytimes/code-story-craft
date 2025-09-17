@@ -1,16 +1,12 @@
 import { RenderLeafProps } from "slate-react";
-import {
-  CheckListItemElement,
-  ComponentType,
-  CustomElement,
-  EmbeddedStoryElement,
-  HeadingElement,
-  ImageElement,
-  MentionElement,
-  RenderSlateElementProps,
-  TagElement,
-  VideoElement,
-} from "./slate";
+
+import { ImageElement } from "./Plugins/Image/ImageElement";
+import { MentionElement } from "./Plugins/Mention/DialogInsertMention";
+import { RenderSlateElementProps, ComponentType, CustomElement } from "./slate";
+import { TagElement } from "./TagElement";
+import { VideoElement } from "./VideoElement";
+import { CheckListItemElement } from "./Elements/CheckListItemElement";
+import { EmbeddedStoryElement } from "./Plugins/EmbeddedStory/EmbeddedStoryPlugin";
 
 // --- Dispatch table with all component types ---
 const elementRenderers: Record<
@@ -25,16 +21,6 @@ const elementRenderers: Record<
     <h1 {...attributes} className="text-3xl font-bold mb-4">
       {children}
     </h1>
-  ),
-
-  [ComponentType.Heading]: ({ attributes, element, children }) => (
-    <h2
-      {...attributes}
-      className="text-xl font-bold mb-2"
-      id={(element as HeadingElement).slug}
-    >
-      {children}
-    </h2>
   ),
 
   [ComponentType.HeadingOne]: ({ attributes, children }) => (
@@ -191,7 +177,7 @@ const elementRenderers: Record<
         contentEditable={false}
         className="px-1 py-0.5 rounded bg-blue-100 text-blue-800 text-xs"
       >
-        @{el.character}
+        @{el.mention}
         {children}
       </span>
     );
@@ -201,7 +187,10 @@ const elementRenderers: Record<
   ),
 
   [ComponentType.Table]: ({ attributes, children }) => (
-    <table {...attributes} className="w-full border-collapse border border-border">
+    <table
+      {...attributes}
+      className="w-full border-collapse border border-border"
+    >
       {children}
     </table>
   ),
@@ -238,7 +227,13 @@ export default function renderSlateElement({
 }: RenderSlateElementProps) {
   // The plugin chain will handle rendering for elements it knows about.
   // We start the chain here.
-  const pluginElement = editor.renderElement({ attributes, children, element, editor, viewMode });
+  const pluginElement = editor.renderElement({
+    attributes,
+    children,
+    element,
+    editor,
+    viewMode,
+  });
   if (pluginElement) {
     return pluginElement;
   }

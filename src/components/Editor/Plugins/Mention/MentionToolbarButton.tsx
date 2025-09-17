@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useSlateStatic } from "slate-react";
 import { AtSign } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import DialogInsertMention from "../Plugins/Mention/DialogInsertMention";
+import DialogInsertMention from "./DialogInsertMention";
 
 export const MentionToolbarButton: React.FC = () => {
   const editor = useSlateStatic();

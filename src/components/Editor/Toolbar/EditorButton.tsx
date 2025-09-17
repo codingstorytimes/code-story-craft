@@ -1,23 +1,22 @@
-import React from "react";
 import { Button } from "@/components/ui/button";
 import { CustomEditor } from "../slate";
 import { LucideIcon } from "lucide-react";
 
-interface EditorButtonProps {
+export interface EditorButtonProps {
   editor: CustomEditor;
   icon: LucideIcon;
   tooltip?: string;
-  onAction: () => void;
+  onAction: (editor: CustomEditor) => void;
   isActive?: boolean;
 }
 
-const EditorButton: React.FC<EditorButtonProps> = ({
+export const EditorButton = ({
   editor,
   icon: Icon,
   tooltip,
   onAction,
   isActive = false,
-}) => {
+}: EditorButtonProps) => {
   return (
     <Button
       type="button"
@@ -26,12 +25,10 @@ const EditorButton: React.FC<EditorButtonProps> = ({
       title={tooltip}
       onMouseDown={(e) => {
         e.preventDefault();
-        onAction();
+        onAction(editor);
       }}
     >
       <Icon className="w-4 h-4" />
     </Button>
   );
 };
-
-export default EditorButton;

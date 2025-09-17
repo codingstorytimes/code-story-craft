@@ -1,36 +1,41 @@
 import { BaseEditor, Descendant } from "slate";
 import { HistoryEditor } from "slate-history";
 import { ReactEditor, RenderElementProps } from "slate-react";
-import type { BlockQuoteElement } from "./BlockQuoteElement";
-import type { BulletedListElement } from "./BulletedListElement";
-import type { CheckListItemElement } from "./CheckListItemElement";
-import type { CodeBlockElement } from "./CodeBlockElement";
-import type { EditableVoidElement } from "./EditableVoidElement";
-import type { EmbeddedStoryElement } from "./EmbeddedStoryElement";
+
+import type { BlockQuoteElement } from "./Elements/BlockQuoteElement";
+import type { BulletedListElement } from "./Elements/BulletedListElement";
+import type { CheckListItemElement } from "./Elements/CheckListItemElement";
+import type { CodeBlockElement } from "./Elements/CodeBlockElement";
+import type { EditableVoidElement } from "./Elements/EditableVoidElement";
+import type { EmbeddedStoryElement } from "./Plugins/EmbeddedStory/EmbeddedStoryPlugin";
+
 import type {
-  HeadingElement,
   HeadingOneElement,
   HeadingTwoElement,
   HeadingThreeElement,
   HeadingFourElement,
   HeadingFiveElement,
   HeadingSixElement,
-} from "./HeadingElement";
-import type { LinkElement } from "./LinkElement";
-import type { ListItemElement } from "./ListItemElement";
-import type { NumberedListElement } from "./NumberedListElement";
-import type { ParagraphElement } from "./ParagraphElement";
+} from "./Elements/HeadingElements";
+
+import type { ImageElement } from "./Plugins/Image/ImageElement";
+import type { LinkElement } from "./Elements/LinkElement";
+import type { ListItemElement } from "./Elements/ListItemElement";
+import type { MentionElement } from "./Plugins/Mention/MentionPlugin";
+import type { NumberedListElement } from "./Elements/NumberedListElement";
+import type { ParagraphElement } from "./Elements/ParagraphElement";
 import type { TagElement } from "./TagElement";
+import type { ThematicBreakElement } from "./Elements/ThematicBreakElement";
 import type { TitleElement } from "./TitleElement";
 import type { VideoElement } from "./VideoElement";
-import type { ThematicBreakElement } from "./Elements/ThematicBreakElement";
-import type { ImageElement } from "./Plugins/Image/ImageElement";
-import type { MentionElement } from "./Plugins/Mention/MentionPlugin";
+
 import type {
   TableElement,
   TableRowElement,
   TableCellElement,
 } from "./Plugins/Table/TableElement";
+import { PluginEditor } from "./Plugins/PluginEditor";
+import { TableEditor } from "./Plugins/Table/TablePlugin";
 
 // ------------------------
 // Types, Enums, Interfaces
@@ -41,6 +46,7 @@ export enum ComponentType {
   NumberedList = "numbered-list",
   CheckListItem = "check-list-item",
   CodeBlock = "code-block",
+  CodeBlockLine = "code_block_line",
   EditableVoid = "editable-void",
   EmbeddedStory = "embedded-story",
   Heading = "heading",
@@ -124,8 +130,12 @@ export type CustomText = {
   color?: string;
   backgroundColor?: string;
   fontSize?: string;
-  userId?: string;
   url?: string;
+  mention?: string;
+  userId?: string;
+  embedStoryId?: string;
+  embedType?: string;
+  headingLevel?: number;
 };
 
 export interface TableEditor extends CustomEditor {
@@ -141,7 +151,6 @@ export type CustomElement =
   | CodeBlockElement
   | EditableVoidElement
   | EmbeddedStoryElement
-  | HeadingElement
   | HeadingOneElement
   | HeadingTwoElement
   | HeadingThreeElement
@@ -162,23 +171,12 @@ export type CustomElement =
   | ThematicBreakElement
   | VideoElement;
 
-export type EditorElementPlugin = {
-  type: string;
-  render: (
-    props: RenderSlateElementProps & { editor: CustomEditor }
-  ) => JSX.Element;
-};
-
-export interface PluginEditor extends BaseEditor, ReactEditor, HistoryEditor {
-  renderElement: (props: RenderSlateElementProps) => JSX.Element | undefined;
-  registerElement: (plugin: EditorElementPlugin) => void;
-}
-
 // Slate Editor Type
 export type CustomEditor = BaseEditor &
   ReactEditor &
   HistoryEditor &
-  PluginEditor;
+  PluginEditor &
+  TableEditor;
 
 // Augment Slate's Custom Types
 declare module "slate" {
@@ -196,32 +194,3 @@ export interface RenderSlateElementProps
   editor: CustomEditor;
   viewMode?: "editor" | "read";
 }
-
-export type {
-  BlockQuoteElement,
-  BulletedListElement,
-  CheckListItemElement,
-  CodeBlockElement,
-  EditableVoidElement,
-  EmbeddedStoryElement,
-  HeadingElement,
-  HeadingOneElement,
-  HeadingTwoElement,
-  HeadingThreeElement,
-  HeadingFourElement,
-  HeadingFiveElement,
-  HeadingSixElement,
-  ImageElement,
-  LinkElement,
-  ListItemElement,
-  MentionElement,
-  NumberedListElement,
-  ParagraphElement,
-  TableCellElement,
-  TableElement,
-  TableRowElement,
-  TagElement,
-  TitleElement,
-  ThematicBreakElement,
-  VideoElement,
-};

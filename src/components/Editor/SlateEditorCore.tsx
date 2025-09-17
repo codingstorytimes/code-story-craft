@@ -12,12 +12,8 @@ import { HistoryEditor } from "slate-history";
 
 import RenderSlateElement, { RenderLeaf } from "./RenderSlateElement";
 
-import { IEmbedType, ComponentType } from "./slate";
-import {
-  updateHeadingSlugs,
-  createCustomEditor,
-  toggleMark,
-} from "./editorUtils";
+import { ComponentType } from "./slate";
+import { createCustomEditor, toggleMark } from "./editorUtils";
 //import { allTools } from "./plugins/plugins";
 
 interface SlateEditorCoreProps {
@@ -77,27 +73,6 @@ const handleKeyDown = (editor: CustomEditor) => {
 
     // Heading Enter handling
     if (event.key === "Enter") {
-      const [currentTextNode, textPath] = Editor.node(
-        editor,
-        selection.anchor.path
-      );
-      const [currentElementNode, elementPath] = Editor.parent(editor, textPath);
-      if (
-        SlateElement.isElement(currentElementNode) &&
-        currentElementNode.type === ComponentType.Heading
-      ) {
-        event.preventDefault();
-        Transforms.insertNodes(
-          editor,
-          {
-            type: ComponentType.Paragraph,
-            children: [{ text: "" }],
-          },
-          { at: Path.next(elementPath) }
-        );
-        Transforms.select(editor, Editor.start(editor, Path.next(elementPath)));
-        return;
-      }
     }
 
     // Ctrl/Cmd shortcuts
@@ -134,7 +109,7 @@ const handleKeyDown = (editor: CustomEditor) => {
 
 /* Toolbar */
 function Toolbar({ editor, userId }: { editor: CustomEditor; userId: string }) {
-  const GroupedToolbar = React.lazy(() => import('./Toolbar/GroupedToolbar'));
+  const GroupedToolbar = React.lazy(() => import("./Toolbar/GroupedToolbar"));
   return (
     <React.Suspense fallback={<div>Loading toolbar...</div>}>
       <GroupedToolbar editor={editor} userId={userId} />
@@ -153,7 +128,6 @@ export default function SlateEditorCore({
   const handleChange = useCallback(
     (newValue: Descendant[]) => {
       onChange(newValue);
-      updateHeadingSlugs(editor);
     },
     [onChange, editor]
   );

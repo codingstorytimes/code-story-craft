@@ -1,4 +1,3 @@
-
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -17,14 +16,14 @@ import {
 } from "@/components/ui/select";
 import StoryAutocomplete from "@/components/StoryAutocomplete";
 import { IEmbedType } from "../../slate";
-import { insertEmbeddedStory } from "../../editorUtils.tsx";
+
 import { CustomEditor } from "../../slate";
-// Remove deprecated IEditorPlugin import
+
 import { useState } from "react";
+import { insertEmbeddedStory } from "./EmbeddedStoryPlugin";
 
 const EmbeddedStoryToolbarButton = ({ editor }: { editor: CustomEditor }) => {
-  const [showEmbeddedStoryDialog, setShowEmbeddedStoryDialog] =
-    useState(false);
+  const [showEmbeddedStoryDialog, setShowEmbeddedStoryDialog] = useState(false);
   const [embedStoryId, setEmbedStoryId] = useState("");
   const [embedType, setEmbedType] = useState<IEmbedType>("inline");
 

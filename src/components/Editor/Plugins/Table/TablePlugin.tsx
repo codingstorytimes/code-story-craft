@@ -12,10 +12,10 @@ import {
   ReactEditor,
   RenderElementProps as SlateRenderElementProps,
 } from "slate-react";
-import { EventEmitter } from "events";
 import { CustomEditor, CustomElement } from "../../slate";
 import { HistoryEditor } from "slate-history";
 import { TableContextMenu } from "./TableContextMenu";
+import { EventEmitter } from "../EventEmitter";
 
 // --- Props for element renderer ---
 export interface RenderSlateElementProps
@@ -69,7 +69,7 @@ export interface TableUtils {
 // Generic element plugin typing
 // -----------------------------
 
-export interface TableEditor extends CustomEditor {
+export interface TableEditor {
   table: { tableUtils: TableUtils };
   __prevSelection: Range | null;
   selectionEvents?: EventEmitter;
@@ -79,7 +79,7 @@ export interface TableEditor extends CustomEditor {
 // -----------------------------
 // Table/Cell Selection helper (reactive)
 // -----------------------------
-export function useSelected<T extends TableEditor>({
+export function useSelected<T extends CustomEditor>({
   element,
   editor,
   mode,
@@ -151,25 +151,22 @@ const TableCellWithSelection = (
 // -----------------------------
 // Extend a base editor with table utilities
 // -----------------------------
-export const withTable = <T extends CustomEditor>(
-  editor: T
-): T & TableEditor => {
-  const tableEditor = editor as T & TableEditor;
-
+export const withTable = <T extends CustomEditor>(editor: T): CustomEditor => {
   const origOnChange = editor.onChange?.bind(editor);
   const origOnKeyDown = (editor as any).onKeyDown as
     | ((event: React.KeyboardEvent) => void)
     | undefined;
 
-  tableEditor.table = { tableUtils: {} as TableUtils };
-  tableEditor.selectionEvents =
-    tableEditor.selectionEvents || new EventEmitter();
-  tableEditor.__prevSelection = tableEditor.__prevSelection || null;
+  console.log(Object.keys(editor), "==wnmdwmn============");
 
-  tableEditor.registerElement({
+  editor.table = { tableUtils: {} as TableUtils };
+  editor.selectionEvents = editor.selectionEvents || new EventEmitter();
+  editor.__prevSelection = editor.__prevSelection || null;
+
+  editor.registerElement({
     type: ComponentType.Table,
     render: ({ attributes, children, element, editor }) => (
-      <TableContextMenu editor={editor as TableEditor} element={element}>
+      <TableContextMenu editor={editor as T} element={element}>
         <div {...attributes} className="my-4 overflow-x-auto">
           <table className="w-full border-collapse border border-gray-300 rounded-lg overflow-hidden">
             <tbody>{children}</tbody>
@@ -178,21 +175,21 @@ export const withTable = <T extends CustomEditor>(
       </TableContextMenu>
     ),
   });
-  tableEditor.registerElement({
+  editor.registerElement({
     type: ComponentType.TableRow,
     render: ({ attributes, children }) => <tr {...attributes}>{children}</tr>,
   });
-  tableEditor.registerElement({
+  editor.registerElement({
     type: ComponentType.TableCell,
     render: (props) => (
-      <TableCellWithSelection {...props} editor={props.editor as TableEditor} />
+      <TableCellWithSelection {...props} editor={props.editor as T} />
     ),
   });
 
   // =============================================================
   // Context Menu Buttons & Toolbar Buttons Helpers
   // =============================================================
-  tableEditor.table.tableUtils = {
+  editor.table.tableUtils = {
     addTable: () => {
       try {
         const table: TableElement = {
@@ -321,10 +318,10 @@ export const withTable = <T extends CustomEditor>(
     },
   };
 
-  tableEditor.onChange = (...args: any[]) => {
+  editor.onChange = (...args: any[]) => {
     origOnChange?.(...args);
-    const prev = tableEditor.__prevSelection;
-    const cur = tableEditor.selection;
+    const prev = editor.__prevSelection;
+    const cur = editor.selection;
     const changed =
       (!prev && cur) ||
       (prev && !cur) ||
@@ -333,13 +330,13 @@ export const withTable = <T extends CustomEditor>(
         Range.isRange(prev) &&
         Range.isRange(cur) &&
         !Range.equals(prev, cur));
-    tableEditor.__prevSelection = cur;
-    if (changed) tableEditor.selectionEvents?.emit("change", { prev, cur });
+    editor.__prevSelection = cur;
+    if (changed) editor.selectionEvents?.emit("change", { prev, cur });
   };
 
-  tableEditor.onKeyDown = (event: React.KeyboardEvent) => {
+  editor.onKeyDown = (event: React.KeyboardEvent) => {
     if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "a") {
-      const sel = tableEditor.selection;
+      const sel = editor.selection;
       if (sel && Range.isRange(sel)) {
         const tableEntry = Editor.above(editor, {
           match: (n: Node): n is TableElement =>
@@ -350,8 +347,8 @@ export const withTable = <T extends CustomEditor>(
           const [, tablePath] = tableEntry;
           const range = Editor.range(editor, tablePath);
           Transforms.select(editor, range);
-          tableEditor.selectionEvents?.emit("change", {
-            prev: tableEditor.__prevSelection,
+          editor.selectionEvents?.emit("change", {
+            prev: editor.__prevSelection,
             cur: range,
           });
           return;
@@ -361,5 +358,5 @@ export const withTable = <T extends CustomEditor>(
     origOnKeyDown?.(event);
   };
 
-  return tableEditor;
+  return editor;
 };

@@ -1,30 +1,38 @@
 import React from "react";
 import { Separator } from "@/components/ui/separator";
 import { CustomEditor, ToolbarGroupId } from "../slate";
-import MarkButtons from "./MarkButtons";
-import EditorButton from "./EditorButton";
+import MarkButtons from "../Elements/MarkButtons";
+
 import EmbeddedStoryToolbarButton from "../Plugins/EmbeddedStory/DialogEmbeddedStory";
 import { TableToolbarButton } from "../Plugins/Table/TableToolbarButton";
-import { ImageToolbarButton } from "./ImageToolbarButton";
-import { MentionToolbarButton } from "./MentionToolbarButton";
-import { 
-  Heading1, 
-  Heading2, 
-  Heading3, 
-  Quote, 
-  Code, 
-  List, 
-  ListOrdered 
-} from "lucide-react";
-import { 
-  insertHeadingBlock, 
-  insertCodeBlock, 
-  insertQuote 
-} from "../editorUtils";
+import { ImageToolbarButton } from "../Plugins/Image/ImageToolbarButton";
+import { MentionToolbarButton } from "../Plugins/Mention/MentionToolbarButton";
+import { Quote, Code, List, ListOrdered } from "lucide-react";
+
+import {
+  BlockQuoteToolbarButton,
+  insertQuote,
+} from "../Elements/BlockQuoteElement";
+import {
+  CodeBlockToolbarButton,
+  insertCodeBlock,
+} from "../Elements/CodeBlockElement";
+import { HeadingToolbarButton } from "../Elements/HeadingElements";
+import { BulletedListToolbarButton } from "../Elements/BulletedListElement";
+import { EditorButton } from "./EditorButton";
+import { NumberedListToolbarButton } from "../Elements/NumberedListElement";
+import { LinkToolbarButton } from "../Elements/LinkElement";
 
 interface GroupedToolbarProps {
   editor: CustomEditor;
   userId: string;
+}
+
+export interface IToolbarButton {
+  id: string;
+  group: string;
+  tooltip?: string;
+  render: (editor: CustomEditor) => React.ReactNode;
 }
 
 const GroupedToolbar: React.FC<GroupedToolbarProps> = ({ editor, userId }) => {
@@ -39,24 +47,12 @@ const GroupedToolbar: React.FC<GroupedToolbarProps> = ({ editor, userId }) => {
       label: "Headings",
       buttons: (
         <>
-          <EditorButton
-            editor={editor}
-            icon={Heading1}
-            tooltip="Heading 1"
-            onAction={() => insertHeadingBlock(editor)}
-          />
-          <EditorButton
-            editor={editor}
-            icon={Heading2}
-            tooltip="Heading 2"
-            onAction={() => insertHeadingBlock(editor)}
-          />
-          <EditorButton
-            editor={editor}
-            icon={Heading3}
-            tooltip="Heading 3"
-            onAction={() => insertHeadingBlock(editor)}
-          />
+          <HeadingToolbarButton editor={editor} headingLevel={1} />
+          <HeadingToolbarButton editor={editor} headingLevel={2} />
+          <HeadingToolbarButton editor={editor} headingLevel={3} />
+          <HeadingToolbarButton editor={editor} headingLevel={4} />
+          <HeadingToolbarButton editor={editor} headingLevel={5} />
+          <HeadingToolbarButton editor={editor} headingLevel={6} />
         </>
       ),
     },
@@ -65,18 +61,8 @@ const GroupedToolbar: React.FC<GroupedToolbarProps> = ({ editor, userId }) => {
       label: "Block Elements",
       buttons: (
         <>
-          <EditorButton
-            editor={editor}
-            icon={Quote}
-            tooltip="Quote"
-            onAction={() => insertQuote(editor)}
-          />
-          <EditorButton
-            editor={editor}
-            icon={Code}
-            tooltip="Code Block"
-            onAction={() => insertCodeBlock(editor)}
-          />
+          <BlockQuoteToolbarButton editor={editor} />
+          <CodeBlockToolbarButton editor={editor} />
         </>
       ),
     },
@@ -85,22 +71,9 @@ const GroupedToolbar: React.FC<GroupedToolbarProps> = ({ editor, userId }) => {
       label: "Lists",
       buttons: (
         <>
-          <EditorButton
-            editor={editor}
-            icon={List}
-            tooltip="Bullet List"
-            onAction={() => {
-              // TODO: Implement list insertion
-            }}
-          />
-          <EditorButton
-            editor={editor}
-            icon={ListOrdered}
-            tooltip="Numbered List"
-            onAction={() => {
-              // TODO: Implement numbered list insertion
-            }}
-          />
+          <BulletedListToolbarButton editor={editor} />
+
+          <NumberedListToolbarButton editor={editor} />
         </>
       ),
     },
@@ -109,6 +82,7 @@ const GroupedToolbar: React.FC<GroupedToolbarProps> = ({ editor, userId }) => {
       label: "Media",
       buttons: (
         <>
+          <LinkToolbarButton editor={editor as any} />
           <ImageToolbarButton userId={userId} />
           <TableToolbarButton editor={editor as any} />
         </>
@@ -130,9 +104,7 @@ const GroupedToolbar: React.FC<GroupedToolbarProps> = ({ editor, userId }) => {
     <div className="border-b border-border p-2 flex gap-1 flex-wrap">
       {toolbarGroups.map((group, index) => (
         <React.Fragment key={group.id}>
-          <div className="flex gap-1 items-center">
-            {group.buttons}
-          </div>
+          <div className="flex gap-1 items-center">{group.buttons}</div>
           {index < toolbarGroups.length - 1 && (
             <Separator orientation="vertical" className="h-6 mx-1" />
           )}

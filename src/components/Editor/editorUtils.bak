@@ -93,16 +93,6 @@ export function ensureLastParagraph(editor: Editor) {
   }
 }
 
-export function insertCodeBlock(editor: Editor, language = "javascript") {
-  const codeBlock: CustomElement = {
-    type: ComponentType.CodeBlock,
-    language,
-    children: [{ text: "" }],
-  };
-
-  Transforms.insertNodes(editor, codeBlock as Descendant);
-  ensureLastParagraph(editor);
-}
 
 export function insertQuote(editor: Editor) {
   Transforms.insertNodes(editor, {
