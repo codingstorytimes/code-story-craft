@@ -43,7 +43,7 @@ const wrapLink = (editor, url, text) => {
   if (isLinkActive(editor)) unwrapLink(editor);
   const { selection } = editor;
   const isCollapsed = selection && Range.isCollapsed(selection);
-  const link = {
+  const link: LinkElement = {
     type: ComponentType.Link,
     url,
     children: isCollapsed ? [{ text: text || url }] : [{ text: text || "" }],
@@ -107,7 +107,7 @@ const DialogLink = ({ editor, isOpen, onClose }) => {
 
       if (match) {
         const [node] = match;
-        setUrl(node.url);
+        setUrl((node as LinkElement).url);
         setText(Node.string(node));
         setIsEditMode(true);
       } else {

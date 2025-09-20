@@ -137,7 +137,6 @@ export default function SlateEditorCore({
       {/* Editor */}
       <div className="flex-1 p-4">
         <Slate
-          key={JSON.stringify(value)}
           editor={editor}
           initialValue={value}
           onValueChange={handleChange}

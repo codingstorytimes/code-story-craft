@@ -33,6 +33,26 @@ import { ImageElement } from "./Plugins/Image/ImagePlugin";
 import { LinkElement } from "./Elements/LinkElement";
 import { TableEditor } from "./Plugins/Table/TablePlugin";
 
+// Export all element types for slate-markdown
+export type {
+  BlockQuoteElement,
+  BulletedListElement, 
+  CheckListItemElement,
+  CodeBlockElement,
+  CodeBlockLineElement,
+  EditableVoidElement,
+  EmbeddedStoryElement,
+  HeadingElement,
+  ListItemElement,
+  NumberedListElement,
+  ParagraphElement,
+  TagElement,
+  ThematicBreakElement,
+  VideoElement,
+  ImageElement,
+  LinkElement
+};
+
 // ------------------------
 // Types, Enums, Interfaces
 // ------------------------

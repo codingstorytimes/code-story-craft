@@ -24,17 +24,15 @@ import { insertEmbeddedStory } from "./EmbeddedStoryPlugin";
 import CreatableSelect from "react-select/creatable";
 
 interface DialogEmbeddedStoryProps {
-  editor: CustomEditor;
   isOpen: boolean;
   onClose: () => void;
-  userId: string;
+  handler?: (data?: { storyId: string; embedType: IEmbedType }) => void;
 }
 
 export default function DialogEmbeddedStory({
-  editor,
   isOpen,
   onClose,
-  userId,
+  handler,
 }: DialogEmbeddedStoryProps) {
   const [showDialogEmbeddedStory, setShowDialogEmbeddedStory] =
     useState(isOpen);
@@ -90,8 +88,10 @@ export default function DialogEmbeddedStory({
           <Button
             onClick={() => {
               setShowDialogEmbeddedStory(false);
-              setEmbedStoryId("");
-              insertEmbeddedStory(editor, embedStoryId, embedType);
+              if (handler && embedStoryId) {
+                handler({ storyId: embedStoryId, embedType });
+              }
+              onClose();
             }}
             className="w-full"
             disabled={!embedStoryId}

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Button } from "react-day-picker";
+import { Button } from "@/components/ui/button";
 import { Editor, Transforms } from "slate";
 import { ComponentType, CustomEditor, IEmbedType } from "../../slate";
 
@@ -50,11 +50,13 @@ export const EmbeddedStoryToolbarButton: React.FC<
         <ScrollText className="w-4 h-4" />
       </Button>
       <DialogEmbeddedStory
-        editor={editor}
         isOpen={showEmbeddedStoryDialog}
         onClose={() => setShowEmbeddedStoryDialog(false)}
-        insertEmbeddedStory={insertEmbeddedStory}
-        userId={userId}
+        handler={(data) => {
+          if (data) {
+            insertEmbeddedStory(editor, data.storyId, data.embedType);
+          }
+        }}
       />
     </>
   );

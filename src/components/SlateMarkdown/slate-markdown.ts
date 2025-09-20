@@ -30,7 +30,7 @@ const slateMarkdownConverters: Record<string, MarkdownConverter> = {
     node.children.map(slateTextToMarkdown).join(""),
 
   [ComponentType.Heading]: (node: HeadingElement) => {
-    const lvl = node.slug ? 2 : 1;
+    const lvl = (node as any).slug ? 2 : 1;
     return `${"#".repeat(lvl)} ${node.children
       .map(slateTextToMarkdown)
       .join("")}`;
@@ -38,7 +38,7 @@ const slateMarkdownConverters: Record<string, MarkdownConverter> = {
 
   [ComponentType.CodeBlock]: (node: CodeBlockElement) =>
     `\`\`\`${node.language ?? "text"}\n${node.children
-      .map((c) => c.text)
+      .map((c) => (c as any).children?.[0]?.text || "")
       .join("")}\n\`\`\``,
 
   [ComponentType.BlockQuote]: (node: BlockQuoteElement, level = 0) =>
@@ -48,7 +48,7 @@ const slateMarkdownConverters: Record<string, MarkdownConverter> = {
       .join("\n"),
 
   [ComponentType.EmbeddedStory]: (node: EmbeddedStoryElement) =>
-    `<embedded-story id="${node.storyId}" embedType="${
+    `<embedded-story id="${node.embedStoryId}" embedType="${
       node.embedType ?? "inline"
     }" />`,
 
@@ -100,7 +100,7 @@ const slateHtmlConverters: Record<string, HtmlConverter> = {
   [ComponentType.Paragraph]: (node: ParagraphElement) =>
     `<p>${node.children.map(slateTextToHtml).join("")}</p>`,
   [ComponentType.Heading]: (node: HeadingElement) => {
-    const lvl = node.slug ? 2 : 1;
+    const lvl = (node as any).slug ? 2 : 1;
     return `<h${lvl}>${node.children.map(slateTextToHtml).join("")}</h${lvl}>`;
   },
   [ComponentType.BlockQuote]: (node: BlockQuoteElement) =>
@@ -108,9 +108,9 @@ const slateHtmlConverters: Record<string, HtmlConverter> = {
       .map(slateNodeToHtmlDispatch)
       .join("")}</blockquote>`,
   [ComponentType.CodeBlock]: (node: CodeBlockElement) =>
-    `<pre><code>${node.children.map((c) => c.text).join("")}</code></pre>`,
+    `<pre><code>${node.children.map((c) => (c as any).children?.[0]?.text || "").join("")}</code></pre>`,
   [ComponentType.EmbeddedStory]: (node: EmbeddedStoryElement) =>
-    `<embedded-story id="${node.storyId}" embedType="${
+    `<embedded-story id="${node.embedStoryId}" embedType="${
       node.embedType ?? "inline"
     }" />`,
   [ComponentType.BulletedList]: (node: BulletedListElement) =>
@@ -155,11 +155,10 @@ const markdownAstConverter: Record<string, (node: Node) => Descendant[]> = {
   heading: (node) => [
     {
       type: ComponentType.Heading,
-      slug: "",
       children: ((node as Parent).children ?? []).flatMap((c) =>
         markdownAstInlineToSlate(c)
       ),
-    },
+    } as HeadingElement,
   ],
   blockquote: (node) => [
     {
@@ -195,8 +194,8 @@ const markdownAstConverter: Record<string, (node: Node) => Descendant[]> = {
     {
       type: ComponentType.CodeBlock,
       language: (node as any).lang ?? "text",
-      children: [{ text: (node as any).value ?? "" }],
-    },
+      children: [{ type: ComponentType.CodeBlockLine, children: [{ text: (node as any).value ?? "" }] }],
+    } as CodeBlockElement,
   ],
   html: (node) => {
     const htmlValue = (node as any).value ?? "";
@@ -207,10 +206,10 @@ const markdownAstConverter: Record<string, (node: Node) => Descendant[]> = {
       return [
         {
           type: ComponentType.EmbeddedStory,
-          storyId: match[1],
+          embedStoryId: match[1],
           embedType: match[2] ?? "inline",
           children: [{ text: "" }],
-        },
+        } as EmbeddedStoryElement,
       ];
     }
     return [{ type: ComponentType.Paragraph, children: [{ text: htmlValue }] }];
