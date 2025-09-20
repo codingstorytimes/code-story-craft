@@ -15,14 +15,6 @@ import {
   DialogFooter,
 } from "../../../ui/dialog";
 
-interface DialogPostUploadImageProps {
-  isOpen: boolean;
-  onClose: () => void;
-  insertImage: (url: string) => void;
-  userId: string;
-  cropMode?: "flex" | "square" | "rectangle";
-}
-
 const schema = z.object({
   image: z
     .instanceof(File, { message: "Please select an image file" })
@@ -36,6 +28,14 @@ const schema = z.object({
       }
     ),
 });
+
+interface DialogPostUploadImageProps {
+  isOpen: boolean;
+  onClose: () => void;
+  insertImage: (url: string) => void;
+  userId: string;
+  cropMode?: "flex" | "square" | "rectangle";
+}
 
 export default function DialogPostUploadImage({
   isOpen,

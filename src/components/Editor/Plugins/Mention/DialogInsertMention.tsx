@@ -10,14 +10,14 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ComponentType, CustomElement } from "../../slate";
+import { ComponentType, CustomEditor } from "../../slate";
 import { MentionElement } from "./MentionPlugin";
-import { AtSign } from "lucide-react";
 
 interface DialogInsertMentionProps {
   isOpen: boolean;
   onClose: () => void;
-  editor?: any;
+  editor: CustomEditor;
+  userId?: string;
 }
 
 export default function DialogInsertMention({
@@ -78,7 +78,7 @@ export function insertMention(editor: Editor, character: string) {
 }
 
 /*
-export const InsertMentionModal = ({ onClose }) => {
+export const DialogInsertMention = ({ onClose }) => {
   const editor = useSlate();
   const [mention, setUserId] = useState("");
 

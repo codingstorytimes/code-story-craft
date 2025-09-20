@@ -10,7 +10,7 @@ import {
   LucideIcon,
 } from "lucide-react";
 import { ComponentType } from "../slate";
-import { EditorButton } from "../Toolbar/EditorButton";
+import { ToolbarButton } from "../Toolbar/ToolbarButton";
 
 export type HeadingLevelType = 1 | 2 | 3 | 4 | 5 | 6;
 
@@ -18,7 +18,6 @@ export type HeadingElement = {
   type: ComponentType.Heading;
   headingLevel: HeadingLevelType;
   children: Descendant[];
-  slug?: string;
 };
 
 const headingIconMap: Record<HeadingElement["headingLevel"], LucideIcon> = {
@@ -40,7 +39,7 @@ export const insertHeadingBlock = (
     children: [{ text: "" }],
   };
 
-  Transforms.insertNodes(editor, headingBlock as Descendant);
+  Transforms.insertNodes(editor, headingBlock as HeadingElement);
 };
 
 export const HeadingToolbarButton = ({
@@ -52,7 +51,7 @@ export const HeadingToolbarButton = ({
 }) => {
   const Icon = headingIconMap[headingLevel];
   return (
-    <EditorButton
+    <ToolbarButton
       editor={editor}
       icon={Icon}
       tooltip={`Heading ${headingLevel}`}

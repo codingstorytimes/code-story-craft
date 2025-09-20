@@ -5,37 +5,33 @@ import { Button } from "@/components/ui/button";
 
 import { ensureLastParagraph } from "../../editorUtils";
 import DialogPostUploadImage from "./DialogPostUploadImage";
-import { Editor, Transforms, Descendant } from "slate";
+import { Editor, Transforms, Descendant, Element } from "slate";
 
-import { ComponentType, CustomEditor, CustomElement } from "../../slate";
+import {
+  ComponentType,
+  CustomEditor,
+  CustomElement,
+  CustomText,
+} from "../../slate";
 
-import { ImageElement } from "./ImageElement";
-
-export const withImage = <T extends CustomEditor>(editor: T): T => {
-  const { isVoid } = editor;
-  editor.isVoid = (element) => {
-    return element.type === "image" ? true : isVoid(element);
-  };
-
-  editor.registerElement({
-    type: ComponentType.Image,
-    render: ({ attributes, element }) => {
-      return (
-        <div {...attributes} contentEditable={false} className="my-3">
-          <img
-            src={(element as ImageElement).url}
-            alt=""
-            className="max-w-full rounded-md border border-border"
-          />
-        </div>
-      );
-    },
-  });
-
-  return editor;
+export type ImageElement = {
+  type: ComponentType.Image;
+  url: string;
+  children: CustomText[];
 };
 
-const ImageToolbarButton = ({ userId }: { userId: string }) => {
+export function insertImage(editor: Editor, url: string) {
+  const image: CustomElement = {
+    type: ComponentType.Image,
+    url,
+    children: [{ text: "" }],
+  };
+
+  Transforms.insertNodes(editor, image as Descendant);
+  ensureLastParagraph(editor);
+}
+
+export const ImageToolbarButton = ({ userId }: { userId: string }) => {
   const editor = useSlateStatic();
   const [showImageDialog, setShowImageDialog] = useState(false);
 
@@ -87,5 +83,39 @@ export async function deleteImageBackend(imageUrl: string) {
   }
 }
 
-// Note: toolbar integration is handled via GroupedToolbar; exporting only the enhancer
-export { withImage };
+export const RenderImageElement = ({ attributes, element }) => {
+  const el = element as ImageElement;
+  return (
+    <div {...attributes} contentEditable={false} className="my-3">
+      <img
+        src={el.url}
+        alt=""
+        className="max-w-full rounded-md border border-border"
+      />
+    </div>
+  );
+};
+
+export const withImage = <T extends CustomEditor>(editor: T): T => {
+  const { isVoid } = editor;
+  editor.isVoid = (element: Element) => {
+    return element.type === ComponentType.Image ? true : isVoid(element);
+  };
+
+  editor.registerElement({
+    type: ComponentType.Image,
+    render: ({ attributes, element }) => {
+      return (
+        <div {...attributes} contentEditable={false} className="my-3">
+          <img
+            src={(element as ImageElement).url}
+            alt=""
+            className="max-w-full rounded-md border border-border"
+          />
+        </div>
+      );
+    },
+  });
+
+  return editor;
+};

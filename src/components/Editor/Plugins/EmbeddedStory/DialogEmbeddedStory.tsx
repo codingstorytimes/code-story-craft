@@ -21,16 +21,30 @@ import { CustomEditor } from "../../slate";
 
 import { useState } from "react";
 import { insertEmbeddedStory } from "./EmbeddedStoryPlugin";
+import CreatableSelect from "react-select/creatable";
 
-const EmbeddedStoryToolbarButton = ({ editor }: { editor: CustomEditor }) => {
-  const [showEmbeddedStoryDialog, setShowEmbeddedStoryDialog] = useState(false);
+interface DialogEmbeddedStoryProps {
+  editor: CustomEditor;
+  isOpen: boolean;
+  onClose: () => void;
+  userId: string;
+}
+
+export default function DialogEmbeddedStory({
+  editor,
+  isOpen,
+  onClose,
+  userId,
+}: DialogEmbeddedStoryProps) {
+  const [showDialogEmbeddedStory, setShowDialogEmbeddedStory] =
+    useState(isOpen);
   const [embedStoryId, setEmbedStoryId] = useState("");
   const [embedType, setEmbedType] = useState<IEmbedType>("inline");
 
   return (
     <Dialog
-      open={showEmbeddedStoryDialog}
-      onOpenChange={setShowEmbeddedStoryDialog}
+      open={showDialogEmbeddedStory}
+      onOpenChange={setShowDialogEmbeddedStory}
     >
       <DialogTrigger asChild>
         <Button
@@ -39,7 +53,7 @@ const EmbeddedStoryToolbarButton = ({ editor }: { editor: CustomEditor }) => {
           size="sm"
           onMouseDown={(e) => {
             e.preventDefault();
-            setShowEmbeddedStoryDialog(true);
+            setShowDialogEmbeddedStory(true);
           }}
         >
           <Plus className="w-4 h-4" />
@@ -75,7 +89,7 @@ const EmbeddedStoryToolbarButton = ({ editor }: { editor: CustomEditor }) => {
           </div>
           <Button
             onClick={() => {
-              setShowEmbeddedStoryDialog(false);
+              setShowDialogEmbeddedStory(false);
               setEmbedStoryId("");
               insertEmbeddedStory(editor, embedStoryId, embedType);
             }}
@@ -88,6 +102,4 @@ const EmbeddedStoryToolbarButton = ({ editor }: { editor: CustomEditor }) => {
       </DialogContent>
     </Dialog>
   );
-};
-
-export default EmbeddedStoryToolbarButton;
+}

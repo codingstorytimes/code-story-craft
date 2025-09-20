@@ -9,7 +9,7 @@ import {
 } from "slate";
 
 import { ComponentType, CustomEditor } from "../slate";
-import { EditorButton } from "../Toolbar/EditorButton";
+import { ToolbarButton } from "../Toolbar/ToolbarButton";
 import { ListOrdered } from "lucide-react";
 
 export type NumberedListItemElement = {
@@ -69,7 +69,7 @@ export const NumberedListToolbarButton = ({
 
   return (
     <>
-      <EditorButton
+      <ToolbarButton
         editor={editor}
         icon={ListOrdered}
         tooltip="Numbered List"
@@ -80,3 +80,8 @@ export const NumberedListToolbarButton = ({
     </>
   );
 };
+export const RenderNumberedListElement = ({ attributes, children }) => (
+  <ol {...attributes} className="list-decimal pl-6">
+    {children}
+  </ol>
+);

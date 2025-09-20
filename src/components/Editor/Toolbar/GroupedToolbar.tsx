@@ -1,27 +1,26 @@
 import React from "react";
 import { Separator } from "@/components/ui/separator";
 import { CustomEditor, ToolbarGroupId } from "../slate";
-import MarkButtons from "../Elements/MarkButtons";
+import MarkButtons from "./MarkButtons";
 
-import EmbeddedStoryToolbarButton from "../Plugins/EmbeddedStory/DialogEmbeddedStory";
 import { TableToolbarButton } from "../Plugins/Table/TableToolbarButton";
 import { ImageToolbarButton } from "../Plugins/Image/ImageToolbarButton";
-import { MentionToolbarButton } from "./MentionToolbarButton";
+
 import { Quote, Code, List, ListOrdered } from "lucide-react";
 
 import {
   BlockQuoteToolbarButton,
   insertQuote,
 } from "../Elements/BlockQuoteElement";
-import {
-  CodeBlockToolbarButton,
-  insertCodeBlock,
-} from "../Elements/CodeBlockElement";
+import { CodeBlockToolbarButton } from "../Plugins/CodeBlock/CodeBlockElement";
 import { HeadingToolbarButton } from "../Elements/HeadingElements";
 import { BulletedListToolbarButton } from "../Elements/BulletedListElement";
-import { EditorButton } from "./EditorButton";
+
 import { NumberedListToolbarButton } from "../Elements/NumberedListElement";
 import { LinkToolbarButton } from "../Elements/LinkElement";
+import { ThematicBreakToolbarButton } from "../Elements/ThematicBreakElement";
+import { MentionToolbarButton } from "../Plugins/Mention/MentionToolbarButton";
+import { EmbeddedStoryToolbarButton } from "../Plugins/EmbeddedStory/EmbeddedStoryToolbarButton";
 
 interface GroupedToolbarProps {
   editor: CustomEditor;
@@ -72,7 +71,6 @@ const GroupedToolbar: React.FC<GroupedToolbarProps> = ({ editor, userId }) => {
       buttons: (
         <>
           <BulletedListToolbarButton editor={editor} />
-
           <NumberedListToolbarButton editor={editor} />
         </>
       ),
@@ -82,8 +80,8 @@ const GroupedToolbar: React.FC<GroupedToolbarProps> = ({ editor, userId }) => {
       label: "Media",
       buttons: (
         <>
-          <LinkToolbarButton editor={editor as any} />
-          <ImageToolbarButton userId={userId} />
+          <LinkToolbarButton editor={editor} />
+          <ImageToolbarButton editor={editor} userId={userId} />
           <TableToolbarButton editor={editor as any} />
         </>
       ),
@@ -93,8 +91,9 @@ const GroupedToolbar: React.FC<GroupedToolbarProps> = ({ editor, userId }) => {
       label: "Inserts",
       buttons: (
         <>
-          <MentionToolbarButton />
-          <EmbeddedStoryToolbarButton editor={editor} />
+          <ThematicBreakToolbarButton editor={editor} />
+          <MentionToolbarButton editor={editor} userId={userId} />
+          <EmbeddedStoryToolbarButton editor={editor} userId={userId} />
         </>
       ),
     },

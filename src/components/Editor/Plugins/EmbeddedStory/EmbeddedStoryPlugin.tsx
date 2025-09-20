@@ -5,11 +5,12 @@ import {
   IEmbedType,
   ComponentType,
   CustomElement,
+  CustomEditor,
 } from "../../slate";
 
 export type EmbeddedStoryElement = {
   type: ComponentType.EmbeddedStory;
-  storyId: string;
+  embedStoryId: string;
   embedType?: IEmbedType;
   children: CustomText[];
 };
@@ -22,7 +23,7 @@ export const insertEmbeddedStory = (
   if (!embedStoryId) return;
   const embedBlock: CustomElement = {
     type: ComponentType.EmbeddedStory,
-    storyId: embedStoryId,
+    embedStoryId: embedStoryId,
     embedType,
     children: [{ text: "" }],
   };
@@ -30,4 +31,51 @@ export const insertEmbeddedStory = (
   ensureLastParagraph(editor);
 };
 
-export const EmbeddedStoryToolbarButton = () => {};
+export const RenderEmbeddedStoryElement = ({ attributes, element }) => {
+  const el = element as EmbeddedStoryElement;
+  return (
+    <div
+      {...attributes}
+      contentEditable={false}
+      className={`my-4 border rounded-md p-3 ${
+        el.embedType === "mini"
+          ? "text-sm"
+          : el.embedType === "full"
+          ? "bg-muted"
+          : ""
+      }`}
+    >
+      <p className="text-muted-foreground">
+        Embedded story: {el.embedStoryId ?? "unknown"}
+      </p>
+    </div>
+  );
+};
+
+export const withEmbeddedStory = <T extends CustomEditor>(editor: T): T => {
+  editor.registerElement({
+    type: ComponentType.EmbeddedStory,
+    render: ({ attributes, element }) => {
+      const el = element as EmbeddedStoryElement;
+      return (
+        <div
+          {...attributes}
+          contentEditable={false}
+          className={`my-4 border rounded-md p-3 ${
+            el.embedType === "mini"
+              ? "text-sm"
+              : el.embedType === "full"
+              ? "bg-muted"
+              : ""
+          }`}
+        >
+          <p className="text-muted-foreground">
+            Embedded story: {el.embedStoryId ?? "unknown"}
+          </p>
+        </div>
+      );
+    },
+  });
+
+  return editor;
+};

@@ -35,28 +35,16 @@ export const withMention = <T extends CustomEditor>(editor: T): T => {
   return editor;
 };
 
-const MentionToolbarButton = () => {
-  const editor = useSlateStatic();
-  const [showMentionDialog, setShowMentionDialog] = useState(false);
-
+export const RenderMentionElement = ({ attributes, element, children }) => {
+  const el = element as MentionElement;
   return (
-    <>
-      <Button
-        type="button"
-        variant="ghost"
-        size="sm"
-        onMouseDown={(e) => {
-          e.preventDefault();
-          setShowMentionDialog(true);
-        }}
-      >
-        <AtSign className="w-4 h-4" />
-      </Button>
-      <DialogInsertMention
-        isOpen={showMentionDialog}
-        onClose={() => setShowMentionDialog(false)}
-        editor={editor}
-      />
-    </>
+    <span
+      {...attributes}
+      contentEditable={false}
+      className="px-1 py-0.5 rounded bg-blue-100 text-blue-800 text-xs"
+    >
+      @{el.character}
+      {children}
+    </span>
   );
 };

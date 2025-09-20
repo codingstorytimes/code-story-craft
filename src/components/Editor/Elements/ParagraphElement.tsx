@@ -1,7 +1,7 @@
 import { Editor, Transforms, Descendant, Element as SlateElement } from "slate";
 import { ComponentType } from "../slate";
 import { Text } from "lucide-react";
-import { EditorButton } from "../Toolbar/EditorButton";
+import { ToolbarButton } from "../Toolbar/ToolbarButton";
 
 // The type definition for a paragraph element in the editor.
 export type ParagraphElement = {
@@ -49,7 +49,7 @@ export const insertParagraph = (editor: Editor) => {
  */
 export const ParagraphToolbarButton = ({ editor }: { editor: Editor }) => {
   return (
-    <EditorButton
+    <ToolbarButton
       editor={editor}
       icon={Text}
       tooltip="Paragraph"
@@ -57,3 +57,7 @@ export const ParagraphToolbarButton = ({ editor }: { editor: Editor }) => {
     />
   );
 };
+
+export const RenderParagraphElement = ({ attributes, children }) => (
+  <p {...attributes}>{children}</p>
+);

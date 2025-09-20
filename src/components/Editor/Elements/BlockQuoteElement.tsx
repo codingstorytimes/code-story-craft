@@ -2,7 +2,8 @@ import { Descendant, Editor, Transforms } from "slate";
 import { Quote, Bold } from "lucide-react";
 import { ensureLastParagraph } from "../editorUtils";
 import { ComponentType } from "../slate";
-import { EditorButton } from "../Toolbar/EditorButton";
+import { ToolbarButton } from "../Toolbar/ToolbarButton";
+import { RenderElementProps } from "slate-react";
 
 export type BlockQuoteElement = {
   type: ComponentType.BlockQuote;
@@ -20,7 +21,7 @@ export function insertQuote(editor: Editor) {
 
 export const BlockQuoteToolbarButton = ({ editor }: { editor: Editor }) => {
   return (
-    <EditorButton
+    <ToolbarButton
       editor={editor}
       icon={Quote}
       tooltip="Quote"
@@ -28,3 +29,12 @@ export const BlockQuoteToolbarButton = ({ editor }: { editor: Editor }) => {
     />
   );
 };
+
+export const RenderBlockQuoteElement = ({ attributes, children }) => (
+  <blockquote
+    {...attributes}
+    className="border-l-4 pl-3 italic text-muted-foreground"
+  >
+    {children}
+  </blockquote>
+);

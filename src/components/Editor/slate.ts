@@ -5,23 +5,21 @@ import { ReactEditor, RenderElementProps } from "slate-react";
 import type { BlockQuoteElement } from "./Elements/BlockQuoteElement";
 import type { BulletedListElement } from "./Elements/BulletedListElement";
 import type { CheckListItemElement } from "./Elements/CheckListItemElement";
-import type { CodeBlockElement } from "./Elements/CodeBlockElement";
+import type {
+  CodeBlockElement,
+  CodeBlockLineElement,
+} from "./Plugins/CodeBlock/CodeBlockElement";
 import type { EditableVoidElement } from "./Elements/EditableVoidElement";
 import type { EmbeddedStoryElement } from "./Plugins/EmbeddedStory/EmbeddedStoryPlugin";
 
-import type {
-  HeadingElement,
-} from "./Elements/HeadingElements";
+import type { HeadingElement } from "./Elements/HeadingElements";
 
-import type { ImageElement } from "./Plugins/Image/ImageElement";
-import type { LinkElement } from "./Elements/LinkElement";
 import type { ListItemElement } from "./Elements/ListItemElement";
 import type { MentionElement } from "./Plugins/Mention/MentionPlugin";
 import type { NumberedListElement } from "./Elements/NumberedListElement";
 import type { ParagraphElement } from "./Elements/ParagraphElement";
 import type { TagElement } from "./TagElement";
 import type { ThematicBreakElement } from "./Elements/ThematicBreakElement";
-import type { TitleElement } from "./TitleElement";
 import type { VideoElement } from "./VideoElement";
 
 import type {
@@ -30,6 +28,10 @@ import type {
   TableCellElement,
 } from "./Plugins/Table/TableElement";
 import { PluginEditor } from "./Plugins/PluginEditor";
+import { Underline } from "lucide-react";
+import { ImageElement } from "./Plugins/Image/ImagePlugin";
+import { LinkElement } from "./Elements/LinkElement";
+import { TableEditor } from "./Plugins/Table/TablePlugin";
 
 // ------------------------
 // Types, Enums, Interfaces
@@ -59,7 +61,6 @@ export enum ComponentType {
   TableRow = "table-row",
   TableCell = "table-cell",
   Tag = "tag",
-  Title = "title",
   Video = "video",
   ThematicBreak = "thematic-break",
 }
@@ -68,6 +69,7 @@ export enum Mark {
   Bold = "bold",
   Italic = "italic",
   Strikethrough = "strikethrough",
+  Underline = "underline",
   Code = "code",
 }
 
@@ -114,28 +116,27 @@ export interface ITool {
 export type IEmbedType = "mini" | "inline" | "full";
 
 export type CustomText = {
-  bold?: boolean;
-  code?: boolean;
-  italic?: boolean;
-  strikethrough?: boolean;
   text: string;
-  underline?: boolean;
+  id?: string;
   align?: string;
-  color?: string;
   backgroundColor?: string;
-  fontSize?: string;
-  url?: string;
-  mention?: string;
-  userId?: string;
+  bold?: boolean;
+  checked?: boolean;
+  className?: string;
+  code?: boolean;
+  color?: string;
   embedStoryId?: string;
   embedType?: string;
+  fontSize?: string;
   headingLevel?: number;
+  italic?: boolean;
+  language?: string;
+  mention?: string;
+  strikethrough?: boolean;
+  underline?: boolean;
+  url?: string;
+  userId?: string;
 };
-
-export interface TableEditorMethods {
-  table: any; // Simplified for this context
-  selectionEvents?: any;
-}
 
 // Unified Element Type
 export type CustomElement =
@@ -143,6 +144,7 @@ export type CustomElement =
   | BulletedListElement
   | CheckListItemElement
   | CodeBlockElement
+  | CodeBlockLineElement
   | EditableVoidElement
   | EmbeddedStoryElement
   | HeadingElement
@@ -156,7 +158,6 @@ export type CustomElement =
   | TableElement
   | TableRowElement
   | TagElement
-  | TitleElement
   | ThematicBreakElement
   | VideoElement;
 
@@ -165,7 +166,7 @@ export type CustomEditor = BaseEditor &
   ReactEditor &
   HistoryEditor &
   PluginEditor &
-  TableEditorMethods;
+  TableEditor;
 
 // Augment Slate's Custom Types
 declare module "slate" {
@@ -183,27 +184,3 @@ export interface RenderSlateElementProps
   editor: CustomEditor;
   viewMode?: "editor" | "read";
 }
-
-// Re-export element types
-export type {
-  BlockQuoteElement,
-  BulletedListElement,
-  CheckListItemElement,
-  CodeBlockElement,
-  EditableVoidElement,
-  EmbeddedStoryElement,
-  HeadingElement,
-  LinkElement,
-  ListItemElement,
-  NumberedListElement,
-  ParagraphElement,
-  TagElement,
-  TitleElement,
-  VideoElement,
-  ThematicBreakElement,
-  ImageElement,
-  MentionElement,
-  TableElement,
-  TableRowElement,
-  TableCellElement,
-};

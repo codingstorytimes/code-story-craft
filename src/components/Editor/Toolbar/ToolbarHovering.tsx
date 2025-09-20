@@ -1,14 +1,12 @@
-import React, { useRef, useEffect, FunctionComponent } from "react";
+import React, { useRef, useEffect } from "react";
 import ReactDOM from "react-dom";
 
 import { Editor, Range } from "slate";
 import { ReactEditor, useSlate } from "slate-react";
 
-// Removed missing imports - using inline buttons instead
 import { Bold, Italic, Underline, Code, Strikethrough } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { isMarkActive, toggleMark } from "../editorUtils";
-import { CustomEditor } from "../slate";
 
 const Portal = ({ children }: { children: React.ReactNode }) => {
   return ReactDOM.createPortal(children, document.body);

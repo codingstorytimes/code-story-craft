@@ -1,191 +1,81 @@
 import { RenderLeafProps } from "slate-react";
 
-import { ImageElement } from "./Plugins/Image/ImageElement";
-import { MentionElement } from "./Plugins/Mention/MentionPlugin";
+import {
+  MentionElement,
+  RenderMentionElement,
+} from "./Plugins/Mention/MentionPlugin";
 import { RenderSlateElementProps, ComponentType, CustomElement } from "./slate";
 import { TagElement } from "./TagElement";
-import { VideoElement } from "./VideoElement";
-import { CheckListItemElement } from "./Elements/CheckListItemElement";
-import { EmbeddedStoryElement } from "./Plugins/EmbeddedStory/EmbeddedStoryPlugin";
+import { RenderVideoElement, VideoElement } from "./VideoElement";
+import {
+  CheckListItemElement,
+  RenderCheckListItemElement,
+} from "./Elements/CheckListItemElement";
+import {
+  EmbeddedStoryElement,
+  RenderEmbeddedStoryElement,
+} from "./Plugins/EmbeddedStory/EmbeddedStoryPlugin";
+import { RenderThematicBreakElement } from "./Elements/ThematicBreakElement";
+import {
+  RenderCodeBlockElement,
+  RenderCodeBlockLineElement,
+} from "./Plugins/CodeBlock/CodeBlockElement";
+import { RenderLinkElement } from "./Elements/LinkElement";
+import { ImageElement, RenderImageElement } from "./Plugins/Image/ImagePlugin";
+import {
+  RenderHeading1Element,
+  RenderHeading2Element,
+  RenderHeading3Element,
+  RenderHeading4Element,
+  RenderHeading5Element,
+  RenderHeading6Element,
+} from "./Elements/HeadingElements";
+import { RenderBlockQuoteElement } from "./Elements/BlockQuoteElement";
+import { RenderBulletedListElement } from "./Elements/BulletedListElement";
+import { RenderNumberedListElement } from "./Elements/NumberedListElement";
+import { RenderTagElement } from "./Elements/TagElement";
+import { RenderParagraphElement } from "./Elements/ParagraphElement";
+import { RenderListItemElement } from "./Elements/ListItemElement";
+
+export const RenderEditableVoidElement = ({ attributes, children }) => (
+  <div {...attributes}>{children}</div>
+);
 
 // --- Dispatch table with all component types ---
-const elementRenderers: Partial<Record<
-  ComponentType,
-  (props: RenderSlateElementProps) => JSX.Element
->> = {
-  [ComponentType.Paragraph]: ({ attributes, children }) => (
-    <p {...attributes}>{children}</p>
-  ),
+const elementRenderers: Partial<
+  Record<ComponentType, (props: RenderSlateElementProps) => JSX.Element>
+> = {
+  [ComponentType.EmbeddedStory]: RenderEmbeddedStoryElement,
 
-  [ComponentType.Title]: ({ attributes, children }) => (
-    <h1 {...attributes} className="text-3xl font-bold mb-4">
-      {children}
-    </h1>
-  ),
+  [ComponentType.Tag]: RenderTagElement,
 
-  [ComponentType.HeadingOne]: ({ attributes, children }) => (
-    <h1 {...attributes} className="text-2xl font-bold">
-      {children}
-    </h1>
-  ),
-  [ComponentType.HeadingTwo]: ({ attributes, children }) => (
-    <h2 {...attributes} className="text-xl font-semibold">
-      {children}
-    </h2>
-  ),
-  [ComponentType.HeadingThree]: ({ attributes, children }) => (
-    <h3 {...attributes} className="text-lg font-medium">
-      {children}
-    </h3>
-  ),
-  [ComponentType.HeadingFour]: ({ attributes, children }) => (
-    <h4 {...attributes} className="text-base font-medium">
-      {children}
-    </h4>
-  ),
+  [ComponentType.Video]: RenderVideoElement,
 
-  [ComponentType.HeadingFive]: ({ attributes, children }) => (
-    <h5 {...attributes} className="text-sm font-medium">
-      {children}
-    </h5>
-  ),
+  [ComponentType.Mention]: RenderMentionElement,
+  [ComponentType.EditableVoid]: RenderEditableVoidElement,
+  [ComponentType.Paragraph]: RenderParagraphElement,
+  [ComponentType.NumberedList]: RenderNumberedListElement,
 
-  [ComponentType.HeadingSix]: ({ attributes, children }) => (
-    <h6 {...attributes} className="text-xs font-medium">
-      {children}
-    </h6>
-  ),
+  [ComponentType.CheckListItem]: RenderCheckListItemElement,
 
-  [ComponentType.BlockQuote]: ({ attributes, children }) => (
-    <blockquote
-      {...attributes}
-      className="border-l-4 pl-3 italic text-muted-foreground"
-    >
-      {children}
-    </blockquote>
-  ),
+  [ComponentType.ListItem]: RenderListItemElement,
 
-  [ComponentType.CodeBlock]: ({ attributes, children }) => (
-    <pre
-      {...attributes}
-      className="bg-muted p-3 rounded-md font-mono text-sm overflow-x-auto"
-    >
-      <code>{children}</code>
-    </pre>
-  ),
+  [ComponentType.BulletedList]: RenderBulletedListElement,
+  [ComponentType.BlockQuote]: RenderBlockQuoteElement,
+  [ComponentType.HeadingOne]: RenderHeading1Element,
+  [ComponentType.HeadingTwo]: RenderHeading2Element,
+  [ComponentType.HeadingThree]: RenderHeading3Element,
+  [ComponentType.HeadingFour]: RenderHeading4Element,
+  [ComponentType.HeadingFive]: RenderHeading5Element,
+  [ComponentType.HeadingSix]: RenderHeading6Element,
+  [ComponentType.ThematicBreak]: RenderThematicBreakElement,
 
-  [ComponentType.BulletedList]: ({ attributes, children }) => (
-    <ul {...attributes} className="list-disc pl-6">
-      {children}
-    </ul>
-  ),
+  [ComponentType.Link]: RenderLinkElement,
+  [ComponentType.Image]: RenderImageElement,
+  [ComponentType.CodeBlock]: RenderCodeBlockElement,
+  [ComponentType.CodeBlockLine]: RenderCodeBlockLineElement,
 
-  [ComponentType.NumberedList]: ({ attributes, children }) => (
-    <ol {...attributes} className="list-decimal pl-6">
-      {children}
-    </ol>
-  ),
-
-  [ComponentType.CheckListItem]: ({ attributes, element, children }) => {
-    const el = element as CheckListItemElement;
-    return (
-      <div {...attributes} className="flex items-center gap-2">
-        <input type="checkbox" checked={el.checked} readOnly />
-        <span>{children}</span>
-      </div>
-    );
-  },
-
-  [ComponentType.ListItem]: ({ attributes, children }) => (
-    <li {...attributes}>{children}</li>
-  ),
-
-  [ComponentType.Link]: ({ attributes, element, children }) => (
-    <a
-      {...attributes}
-      href={(element as any).url}
-      className="text-primary underline"
-      target="_blank"
-      rel="noopener noreferrer"
-    >
-      {children}
-    </a>
-  ),
-
-  [ComponentType.Image]: ({ attributes, element }) => {
-    const el = element as ImageElement;
-    return (
-      <div {...attributes} contentEditable={false} className="my-3">
-        <img
-          src={el.url}
-          alt=""
-          className="max-w-full rounded-md border border-border"
-        />
-      </div>
-    );
-  },
-
-  [ComponentType.EmbeddedStory]: ({ attributes, element }) => {
-    const el = element as EmbeddedStoryElement;
-    return (
-      <div
-        {...attributes}
-        contentEditable={false}
-        className={`my-4 border rounded-md p-3 ${
-          el.embedType === "mini"
-            ? "text-sm"
-            : el.embedType === "full"
-            ? "bg-muted"
-            : ""
-        }`}
-      >
-        <p className="text-muted-foreground">
-          Embedded story: {el.storyId ?? "unknown"}
-        </p>
-      </div>
-    );
-  },
-
-  [ComponentType.Tag]: ({ attributes, element, children }) => {
-    const el = element as TagElement;
-    return (
-      <span
-        {...attributes}
-        className="inline-block px-2 py-1 text-xs bg-muted text-muted-foreground rounded"
-      >
-        {el.value ?? "#"}
-        {children}
-      </span>
-    );
-  },
-
-  [ComponentType.Video]: ({ attributes, element, children }) => {
-    const el = element as VideoElement;
-    return (
-      <div {...attributes} contentEditable={false} className="my-4">
-        <video src={el.url} controls className="max-w-full rounded" />
-        {children}
-      </div>
-    );
-  },
-
-  [ComponentType.Mention]: ({ attributes, element, children }) => {
-    const el = element as MentionElement;
-    return (
-      <span
-        {...attributes}
-        contentEditable={false}
-        className="px-1 py-0.5 rounded bg-blue-100 text-blue-800 text-xs"
-      >
-        @{el.character}
-        {children}
-      </span>
-    );
-  },
-  [ComponentType.EditableVoid]: ({ attributes, children }) => (
-    <div {...attributes}>{children}</div>
-  ),
-
+  /*
   [ComponentType.Table]: ({ attributes, children }) => (
     <table
       {...attributes}
@@ -205,16 +95,8 @@ const elementRenderers: Partial<Record<
     <td {...attributes} className="border border-border p-2">
       {children}
     </td>
-  ),
-
-  [ComponentType.ThematicBreak]: ({ attributes, children }) => (
-    <div {...attributes} contentEditable={false} className="my-4">
-      <hr className="border-t-2 border-border" />
-      {children}
-    </div>
-  ),
-
-  // Fallback for any additional unhandled types
+  )
+  ,*/
 };
 
 // --- Renderer function ---

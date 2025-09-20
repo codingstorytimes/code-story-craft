@@ -1,6 +1,6 @@
 import { Descendant, Editor, Transforms, Element as SlateElement } from "slate";
 import { ComponentType, CustomEditor } from "../slate";
-import { EditorButton } from "../Toolbar/EditorButton";
+import { ToolbarButton } from "../Toolbar/ToolbarButton";
 import { ListChecks } from "lucide-react";
 
 export type CheckListItemElement = {
@@ -42,7 +42,7 @@ export const CheckListToolbarButton = ({
 
   return (
     <>
-      <EditorButton
+      <ToolbarButton
         editor={editor}
         icon={ListChecks}
         tooltip="Checklist"
@@ -50,5 +50,19 @@ export const CheckListToolbarButton = ({
         onAction={toggleChecklistItem}
       />
     </>
+  );
+};
+
+export const RenderCheckListItemElement = ({
+  attributes,
+  element,
+  children,
+}) => {
+  const el = element as CheckListItemElement;
+  return (
+    <div {...attributes} className="flex items-center gap-2">
+      <input type="checkbox" checked={el.checked} readOnly />
+      <span>{children}</span>
+    </div>
   );
 };

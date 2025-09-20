@@ -1,59 +1,219 @@
-import { useState } from "react";
-import { Descendant, Transforms, Range, Element as SlateElement, Editor } from "slate";
+import { useState, useEffect } from "react";
+import {
+  Transforms,
+  Editor,
+  Element as SlateElement,
+  Range,
+  Node,
+  Descendant,
+} from "slate";
+
+import { createPortal } from "react-dom";
+import { ComponentType, CustomEditor } from "../slate";
+import { ToolbarButton } from "../Toolbar/ToolbarButton";
 import { Link } from "lucide-react";
-import { EditorButton as ToolbarButton } from "../Toolbar/EditorButton";
-import { ComponentType, CustomEditor, CustomText } from "../slate";
 
 export type LinkElement = {
   type: ComponentType.Link;
   url: string;
-  children: CustomText[];
+  children: Descendant[];
 };
 
-export const LinkModal = ({
-  isOpen,
-  onClose,
-  onInsert,
-}: {
-  isOpen: boolean;
-  onClose: () => void;
-  onInsert: (url: string) => void;
-}) => {
+// --- Helpers ---
+const isLinkActive = (editor) => {
+  const [match] = Editor.nodes(editor, {
+    match: (n) =>
+      !Editor.isEditor(n) &&
+      SlateElement.isElement(n) &&
+      n.type === ComponentType.Link,
+  });
+  return !!match;
+};
+
+const unwrapLink = (editor) => {
+  Transforms.unwrapNodes(editor, {
+    match: (n) =>
+      !Editor.isEditor(n) &&
+      SlateElement.isElement(n) &&
+      n.type === ComponentType.Link,
+  });
+};
+
+const wrapLink = (editor, url, text) => {
+  if (isLinkActive(editor)) unwrapLink(editor);
+  const { selection } = editor;
+  const isCollapsed = selection && Range.isCollapsed(selection);
+  const link = {
+    type: ComponentType.Link,
+    url,
+    children: isCollapsed ? [{ text: text || url }] : [{ text: text || "" }],
+  };
+  if (isCollapsed) {
+    Transforms.insertNodes(editor, link, {
+      select: true,
+    });
+  } else {
+    Transforms.wrapNodes(editor, link, { split: true });
+    Transforms.collapse(editor, { edge: "end" });
+  }
+};
+
+const updateLink = (editor, url, text) => {
+  // Find the current link node
+  const [linkNodeEntry] = Editor.nodes(editor, {
+    match: (n) =>
+      !Editor.isEditor(n) &&
+      SlateElement.isElement(n) &&
+      n.type === ComponentType.Link,
+  });
+
+  if (!linkNodeEntry) return;
+
+  const [linkNode, linkPath] = linkNodeEntry;
+
+  // Update the URL of the link node
+  Transforms.setNodes(editor, { url }, { at: linkPath });
+
+  // Update the text content of the link
+  if (text !== undefined) {
+    // Get the path to the text node inside the link node
+    const textNodePath = linkPath.concat([0]);
+    const oldText = Node.string(linkNode);
+
+    // Delete the old text and insert the new text
+    Transforms.delete(editor, {
+      at: textNodePath,
+      unit: "character",
+      distance: oldText.length,
+    });
+    Transforms.insertText(editor, text, { at: textNodePath });
+  }
+};
+
+// --- Link Modal Component ---
+const DialogLink = ({ editor, isOpen, onClose }) => {
   const [url, setUrl] = useState("");
+  const [text, setText] = useState("");
+  const [isEditMode, setIsEditMode] = useState(false);
+
+  useEffect(() => {
+    if (isOpen) {
+      const [match] = Editor.nodes(editor, {
+        match: (n: SlateElement) =>
+          !Editor.isEditor(n) &&
+          SlateElement.isElement(n) &&
+          n.type === ComponentType.Link,
+      });
+
+      if (match) {
+        const [node] = match;
+        setUrl(node.url);
+        setText(Node.string(node));
+        setIsEditMode(true);
+      } else {
+        setUrl("");
+        const { selection } = editor;
+        if (selection && !Range.isCollapsed(selection)) {
+          const selectedText = Editor.string(editor, selection);
+          setText(selectedText);
+        } else {
+          setText("");
+        }
+        setIsEditMode(false);
+      }
+    }
+  }, [isOpen, editor]);
 
   if (!isOpen) return null;
 
-  const handleInsert = () => {
-    if (url) {
-      onInsert(url);
-      setUrl("");
-      onClose();
+  const handleSave = () => {
+    if (!url) {
+      return;
+    }
+
+    if (isEditMode) {
+      updateLink(editor, url, text);
+    } else {
+      wrapLink(editor, url, text);
+    }
+
+    onClose();
+  };
+
+  const handleRemove = () => {
+    unwrapLink(editor);
+    onClose();
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      handleSave();
     }
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="bg-gray-800 p-6 rounded-lg shadow-lg max-w-sm w-full">
-        <h2 className="text-xl font-bold mb-4 text-white">Insert Link</h2>
-        <input
-          type="text"
-          placeholder="Enter URL"
-          value={url}
-          onChange={(e) => setUrl(e.target.value)}
-          className="w-full p-2 mb-4 rounded-md bg-gray-700 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-        />
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+      <div
+        className="bg-white p-6 rounded-lg shadow-xl w-full max-w-sm"
+        onKeyDown={handleKeyDown}
+      >
+        <h3 className="text-xl font-bold mb-4">
+          {isEditMode ? "Edit Link" : "Add Link"}
+        </h3>
+        <div className="mb-4">
+          <label
+            htmlFor="link-url"
+            className="block text-sm font-medium text-gray-700 mb-1"
+          >
+            URL
+          </label>
+          <input
+            id="link-url"
+            type="url"
+            value={url}
+            onChange={(e) => setUrl(e.target.value)}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="https://example.com"
+          />
+        </div>
+        <div className="mb-4">
+          <label
+            htmlFor="link-text"
+            className="block text-sm font-medium text-gray-700 mb-1"
+          >
+            Link Text
+          </label>
+          <input
+            id="link-text"
+            type="text"
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="Optional: Enter display text"
+          />
+        </div>
         <div className="flex justify-end space-x-2">
+          {isEditMode && (
+            <button
+              onClick={handleRemove}
+              className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
+            >
+              Remove
+            </button>
+          )}
           <button
             onClick={onClose}
-            className="px-4 py-2 text-sm font-medium text-gray-300 rounded-md hover:bg-gray-600 transition-colors"
+            className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors"
           >
             Cancel
           </button>
           <button
-            onClick={handleInsert}
-            className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 transition-colors"
+            onClick={handleSave}
+            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+            disabled={!url}
           >
-            Insert
+            Save
           </button>
         </div>
       </div>
@@ -61,86 +221,135 @@ export const LinkModal = ({
   );
 };
 
-export const isLinkActive = (editor: CustomEditor) => {
-  const [link] = Array.from(
-    Editor.nodes(editor, {
-      match: (n) =>
-        !Editor.isEditor(n) &&
-        SlateElement.isElement(n) &&
-        n.type === ComponentType.Link,
-    })
-  );
-  return !!link;
-};
+// --- Toolbar Button with Link Modal ---
+export const LinkToolbarButton = ({ editor }: { editor: CustomEditor }) => {
+  const active = isLinkActive(editor);
+  const [isModalOpen, setModalOpen] = useState(false);
 
-export const insertLink = (editor: CustomEditor, url: string) => {
-  if (editor.selection) {
-    wrapLink(editor, url);
-  }
-};
-
-const wrapLink = (editor: CustomEditor, url: string) => {
-  if (isLinkActive(editor)) {
-    Transforms.unwrapNodes(editor, {
-      match: (n) =>
-        !Editor.isEditor(n) &&
-        SlateElement.isElement(n) &&
-        n.type === ComponentType.Link,
-    });
-  }
-
-  const { selection } = editor;
-  const isCollapsed = selection && Range.isCollapsed(selection);
-
-  const link: LinkElement = {
-    type: ComponentType.Link,
-    url,
-    children: isCollapsed ? [{ text: url }] : [],
+  const handleClick = () => {
+    setModalOpen(true);
   };
 
-  if (isCollapsed) {
-    Transforms.insertNodes(editor, link);
-  } else {
-    Transforms.wrapNodes(editor, link, { split: true });
-    Transforms.collapse(editor, { edge: "end" });
-  }
-};
+  useEffect(() => {
+    if (active) {
+      setModalOpen(true);
+    }
+  }, [active]);
 
-export const LinkToolbarButton = ({ editor }: { editor: CustomEditor }) => {
-  const [showLinkModal, setShowLinkModal] = useState(false);
   return (
     <>
       <ToolbarButton
-        editor={editor}
+        onAction={handleClick}
+        isActive={active}
+        tooltip="Link"
         icon={Link}
-        onAction={() => setShowLinkModal(true)}
-        isActive={isLinkActive(editor)}
+        editor={editor}
       />
-      <LinkModal
-        isOpen={showLinkModal}
-        onClose={() => setShowLinkModal(false)}
-        onInsert={(url) => insertLink(editor, url)}
-      />
+      {isModalOpen &&
+        createPortal(
+          <DialogLink
+            editor={editor}
+            isOpen={isModalOpen}
+            onClose={() => setModalOpen(false)}
+          />,
+          document.body
+        )}
     </>
   );
 };
 
-export const LinkElementComponent = ({
-  attributes,
-  children,
-  element,
-}: {
-  attributes: any;
-  children: React.ReactNode;
-  element: LinkElement;
-}) => (
-  <a
-    {...attributes}
-    href={element.url}
-    className="text-indigo-400 hover:underline transition-colors"
-    rel="noopener noreferrer"
-    target="_blank"
-  >
-    {children}
-  </a>
-);
+// --- Element Renderers ---
+export const RenderLinkElement = ({ attributes, children, element }) => {
+  const link = element;
+  return (
+    <a
+      {...attributes}
+      href={link.url}
+      className="text-blue-500 underline hover:text-blue-700 transition-colors"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      {children}
+    </a>
+  );
+};
+
+// Define which elements are inline
+export const withLink = (editor) => {
+  const { isInline } = editor;
+  editor.isInline = (element) =>
+    element.type === ComponentType.Link || isInline(element);
+
+  return editor;
+};
+
+//============================
+//============================
+//============================
+//============================
+
+// --- Main App ---
+/*
+const renderElement = (props) => {
+  switch (props.element.type) {
+    case ComponentType.Link:
+      return <RenderLinkElement {...props} />;
+    default:
+      return <p {...props.attributes}>{props.children}</p>;
+  }
+};
+
+
+const initialValue = [
+  {
+    type: ComponentType.Paragraph,
+    children: [{ text: "Start typing or use the toolbar..." }],
+  },
+  {
+    type: ComponentType.Paragraph,
+    children: [{ text: "Select text and click Link to add or edit." }],
+  },
+  {
+    type: ComponentType.Paragraph,
+    children: [
+      { text: "Try clicking on the " },
+      {
+        text: "Example Link",
+        url: "https://www.google.com",
+        type: ComponentType.Link,
+      },
+      { text: "." },
+    ],
+  },
+];
+
+export const EditorApp = () => {
+  const editor = useMemo(() => withLink(withReact(createEditor())), []);
+  const [value, setValue] = useState(initialValue);
+
+  return (
+    <div className="p-6 bg-gray-50 min-h-screen font-sans">
+      <div className="max-w-3xl mx-auto bg-white shadow-xl rounded-lg p-6">
+        <Slate
+          editor={editor}
+          initialValue={value}
+          onChange={(newValue) => setValue(newValue)}
+        >
+          <div className="p-2 border-b-2 border-gray-200 mb-4 flex space-x-2">
+            <LinkToolbarButton />
+          </div>
+          <div className="relative border border-gray-300 rounded-md p-4 min-h-[300px]">
+            <Editable
+              renderElement={renderElement}
+              placeholder="Start typing or select text to add a link..."
+              className="outline-none"
+            />
+          </div>
+        </Slate>
+      </div>
+    </div>
+  );
+};
+
+export default EditorApp;
+*/

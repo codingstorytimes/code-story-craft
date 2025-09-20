@@ -3,9 +3,17 @@ import { useSlateStatic } from "slate-react";
 import { AtSign } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import DialogInsertMention from "./DialogInsertMention";
+import { CustomEditor } from "../../slate";
 
-export const MentionToolbarButton: React.FC = () => {
-  const editor = useSlateStatic();
+interface MentionToolbarButtonProps {
+  editor: CustomEditor;
+  userId: string;
+}
+
+export const MentionToolbarButton: React.FC<MentionToolbarButtonProps> = ({
+  editor,
+  userId,
+}) => {
   const [showMentionDialog, setShowMentionDialog] = useState(false);
 
   return (
@@ -25,6 +33,7 @@ export const MentionToolbarButton: React.FC = () => {
         isOpen={showMentionDialog}
         onClose={() => setShowMentionDialog(false)}
         editor={editor}
+        userId={userId}
       />
     </>
   );

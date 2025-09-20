@@ -3,7 +3,7 @@ import { ComponentType, CustomEditor } from "../slate";
 import { ensureLastParagraph } from "../editorUtils";
 
 import { List } from "lucide-react";
-import { EditorButton } from "../Toolbar/EditorButton";
+import { ToolbarButton } from "../Toolbar/ToolbarButton";
 
 export type BulletedListElement = {
   type: ComponentType.BulletedList;
@@ -13,35 +13,29 @@ export type BulletedListElement = {
 export function toggleBulletedList(editor: Editor) {
   const [inList] = Editor.nodes(editor, {
     match: (n) =>
-      SlateElement.isElement(n) && (n as any).type === ComponentType.BulletedList,
+      SlateElement.isElement(n) &&
+      (n as any).type === ComponentType.BulletedList,
   });
 
   if (inList) {
     // unwrap list and turn items back into paragraphs
     Transforms.unwrapNodes(editor, {
       match: (n) =>
-        SlateElement.isElement(n) && (n as any).type === ComponentType.BulletedList,
+        SlateElement.isElement(n) &&
+        (n as any).type === ComponentType.BulletedList,
       split: true,
     });
-    Transforms.setNodes(
-      editor,
-      { type: ComponentType.Paragraph } as any,
-      {
-        match: (n) =>
-          SlateElement.isElement(n) && (n as any).type === ComponentType.ListItem,
-      }
-    );
+    Transforms.setNodes(editor, { type: ComponentType.Paragraph } as any, {
+      match: (n) =>
+        SlateElement.isElement(n) && (n as any).type === ComponentType.ListItem,
+    });
     return;
   }
 
   // Convert current block into list-item then wrap with bulleted-list
-  Transforms.setNodes(
-    editor,
-    { type: ComponentType.ListItem } as any,
-    {
-      match: (n) => SlateElement.isElement(n) && Editor.isBlock(editor, n),
-    }
-  );
+  Transforms.setNodes(editor, { type: ComponentType.ListItem } as any, {
+    match: (n) => SlateElement.isElement(n) && Editor.isBlock(editor, n),
+  });
 
   Transforms.wrapNodes(
     editor,
@@ -61,7 +55,7 @@ export const BulletedListToolbarButton = ({
   editor: CustomEditor;
 }) => {
   return (
-    <EditorButton
+    <ToolbarButton
       editor={editor}
       icon={List}
       tooltip="Bullet List"
@@ -71,3 +65,9 @@ export const BulletedListToolbarButton = ({
     />
   );
 };
+
+export const RenderBulletedListElement = ({ attributes, children }) => (
+  <ul {...attributes} className="list-disc pl-6">
+    {children}
+  </ul>
+);

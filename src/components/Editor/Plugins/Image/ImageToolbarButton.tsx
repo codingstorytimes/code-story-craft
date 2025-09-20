@@ -4,15 +4,17 @@ import { Editor, Transforms, Element as SlateElement } from "slate";
 import { ImageIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import DialogPostUploadImage from "./DialogPostUploadImage";
-import { ComponentType } from "../../slate";
+import { ComponentType, CustomEditor } from "../../slate";
+import { ImageElement } from "./ImagePlugin";
 
 interface ImageToolbarButtonProps {
+  editor: CustomEditor;
   userId: string;
 }
 
 const insertImage = (editor: Editor, url: string) => {
   const text = { text: "" };
-  const image: SlateElement = {
+  const image: ImageElement = {
     type: ComponentType.Image,
     url,
     children: [text],
@@ -25,9 +27,9 @@ const insertImage = (editor: Editor, url: string) => {
 };
 
 export const ImageToolbarButton: React.FC<ImageToolbarButtonProps> = ({
+  editor,
   userId,
 }) => {
-  const editor = useSlateStatic();
   const [showImageDialog, setShowImageDialog] = useState(false);
 
   return (

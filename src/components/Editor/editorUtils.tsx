@@ -1,33 +1,21 @@
 // utils/editorUtils.ts
 
-import React from "react";
-import { RenderElementProps } from "slate-react";
 import {
   createEditor,
   Editor,
   Element as SlateElement,
-  Text,
   Transforms,
-  Descendant,
-  Range,
-  Path,
 } from "slate";
 import { withHistory, HistoryEditor } from "slate-history";
-import slugify from "slugify";
 
-import {
-  ComponentType,
-  CustomEditor,
-  CustomElement,
-  CustomText,
-  IEmbedType,
-} from "./slate";
+import { ComponentType, CustomEditor, CustomText } from "./slate";
 import { withTable } from "./Plugins/Table/TablePlugin";
 import { withReact } from "slate-react";
 import { withMention } from "./Plugins/Mention/MentionPlugin";
 import { withImage } from "./Plugins/Image/ImagePlugin";
-import { withEmbeddedStory } from "./Plugins/EmbeddedStory/withEmbeddedStory";
+
 import { withPlugin } from "./Plugins/PluginEditor";
+import { withEmbeddedStory } from "./Plugins/EmbeddedStory/EmbeddedStoryPlugin";
 
 export function createCustomEditor(): Editor & HistoryEditor {
   let editor = withHistory(withReact(withPlugin(createEditor())));
@@ -35,39 +23,30 @@ export function createCustomEditor(): Editor & HistoryEditor {
     withImage(withMention(withTable(editor)))
   ) as CustomEditor;
 
-  const { insertBreak } = editor;
-  editor.insertBreak = () => {
-const [match] = Editor.nodes(editor, {
-      match: (n) =>
-        SlateElement.isElement(n) && (n as any).type === ComponentType.CodeBlock,
-    });
-
-    if (match) {
-      Editor.insertText(editor, "\n");
-    } else {
-      insertBreak();
-    }
-  };
-
   return editor;
 }
 
-export function isMarkActive(
-  editor: Editor,
-  format: keyof CustomText
-): boolean {
-  const marks = Editor.marks(editor);
-  return marks ? marks[format] === true : false;
-}
+export const isBlockActive = (editor: Editor, type: ComponentType) => {
+  const [match] = Editor.nodes(editor, {
+    match: (n) =>
+      !Editor.isEditor(n) &&
+      SlateElement.isElement(n) &&
+      (n as any).type === type,
+  });
+  return !!match;
+};
 
-export function toggleMark(editor: Editor, format: keyof CustomText) {
-  const marks = Editor.marks(editor);
-  if (marks?.[format]) {
-    Editor.removeMark(editor, format);
-  } else {
-    Editor.addMark(editor, format, true);
-  }
-}
+export const isMarkActive = (editor: Editor, format: keyof CustomText) => {
+  const marks = Editor.marks(editor) as Record<string, any> | null;
+  return marks ? marks[format] === true : false;
+};
+
+export const toggleMark = (editor: Editor, format: keyof CustomText) => {
+  const isActive = isMarkActive(editor, format);
+  if (isActive) Editor.removeMark(editor, format);
+  else Editor.addMark(editor, format, true);
+};
+
 export function ensureLastParagraph(editor: Editor) {
   const lastNode = editor.children[editor.children.length - 1];
 

@@ -66,17 +66,6 @@ export interface TableUtils {
 }
 
 // -----------------------------
-// Generic element plugin typing
-// -----------------------------
-
-export interface TableEditor {
-  table: { tableUtils: TableUtils };
-  __prevSelection: Range | null;
-  selectionEvents?: EventEmitter;
-  onKeyDown?: (event: React.KeyboardEvent) => void;
-}
-
-// -----------------------------
 // Table/Cell Selection helper (reactive)
 // -----------------------------
 export function useSelected<T extends CustomEditor>({
@@ -148,9 +137,14 @@ const TableCellWithSelection = (
     </td>
   );
 };
-// -----------------------------
-// Extend a base editor with table utilities
-// -----------------------------
+
+export interface TableEditor {
+  table: { tableUtils: TableUtils };
+  __prevSelection: Range | null;
+  selectionEvents?: EventEmitter;
+  onKeyDown?: (event: React.KeyboardEvent) => void;
+}
+
 export const withTable = <T extends CustomEditor>(editor: T): CustomEditor => {
   const origOnChange = editor.onChange?.bind(editor);
   const origOnKeyDown = (editor as any).onKeyDown as

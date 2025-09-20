@@ -94,14 +94,7 @@ export function ensureLastParagraph(editor: Editor) {
 }
 
 
-export function insertQuote(editor: Editor) {
-  Transforms.insertNodes(editor, {
-    type: ComponentType.BlockQuote,
-    children: [{ text: "" }],
-  } as Descendant);
 
-  ensureLastParagraph(editor);
-}
 
 export function insertHeadingBlock(editor: Editor) {
   const heading: CustomElement = {
