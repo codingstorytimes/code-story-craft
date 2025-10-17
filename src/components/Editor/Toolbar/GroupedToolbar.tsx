@@ -3,24 +3,26 @@ import { Separator } from "@/components/ui/separator";
 import { CustomEditor, ToolbarGroupId } from "../slate";
 import MarkButtons from "./MarkButtons";
 
-import { TableToolbarButton } from "../Plugins/Table/TableToolbarButton";
-import { ImageToolbarButton } from "../Plugins/Image/ImageToolbarButton";
+import { TableToolbarButton } from "../Elements/Table/TableToolbarButton";
+import { ImageToolbarButton } from "../Elements/Image/ImageToolbarButton";
 
 import { Quote, Code, List, ListOrdered } from "lucide-react";
 
 import {
   BlockQuoteToolbarButton,
   insertQuote,
-} from "../Elements/BlockQuoteElement";
-import { CodeBlockToolbarButton } from "../Plugins/CodeBlock/CodeBlockElement";
-import { HeadingToolbarButton } from "../Elements/HeadingElements";
-import { BulletedListToolbarButton } from "../Elements/BulletedListElement";
+} from "../Elements/BlockQuote/BlockQuoteElement";
 
-import { NumberedListToolbarButton } from "../Elements/NumberedListElement";
-import { LinkToolbarButton } from "../Elements/LinkElement";
-import { ThematicBreakToolbarButton } from "../Elements/ThematicBreakElement";
-import { MentionToolbarButton } from "../Plugins/Mention/MentionToolbarButton";
-import { EmbeddedStoryToolbarButton } from "../Plugins/EmbeddedStory/EmbeddedStoryToolbarButton";
+import { HeadingToolbarButton } from "../Elements/Headings/HeadingElements";
+import { BulletedListToolbarButton } from "../Elements/BulletedList/BulletedListElement";
+
+import { NumberedListToolbarButton } from "../Elements/NumberedList/NumberedListElement";
+
+import { ThematicBreakToolbarButton } from "../Elements/ThematicBreak/ThematicBreakElement";
+import { MentionToolbarButton } from "../Elements/Mention/MentionToolbarButton";
+import { EmbeddedStoryToolbarButton } from "../Elements/EmbeddedStory/EmbeddedStoryToolbarButton";
+import { CodeBlockToolbarButton } from "../Elements/CodeBlock/CodeBlockToolbarButton";
+import { LinkToolbarButton } from "../Elements/Link/LinkToolbarButton";
 
 interface GroupedToolbarProps {
   editor: CustomEditor;

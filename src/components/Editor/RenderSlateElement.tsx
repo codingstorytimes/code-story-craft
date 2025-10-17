@@ -1,27 +1,10 @@
 import { RenderLeafProps } from "slate-react";
 
-import {
-  MentionElement,
-  RenderMentionElement,
-} from "./Plugins/Mention/MentionPlugin";
-import { RenderSlateElementProps, ComponentType, CustomElement } from "./slate";
-import { TagElement } from "./TagElement";
-import { RenderVideoElement, VideoElement } from "./VideoElement";
-import {
-  CheckListItemElement,
-  RenderCheckListItemElement,
-} from "./Elements/CheckListItemElement";
-import {
-  EmbeddedStoryElement,
-  RenderEmbeddedStoryElement,
-} from "./Plugins/EmbeddedStory/EmbeddedStoryPlugin";
-import { RenderThematicBreakElement } from "./Elements/ThematicBreakElement";
-import {
-  RenderCodeBlockElement,
-  RenderCodeBlockLineElement,
-} from "./Plugins/CodeBlock/CodeBlockElement";
-import { RenderLinkElement } from "./Elements/LinkElement";
-import { ImageElement, RenderImageElement } from "./Plugins/Image/ImagePlugin";
+import { RenderSlateElementProps, ComponentType } from "./slate";
+
+import { RenderVideoElement } from "./Elements/Video/VideoElement";
+
+import { RenderThematicBreakElement } from "./Elements/ThematicBreak/ThematicBreakElement";
 import {
   RenderHeading1Element,
   RenderHeading2Element,
@@ -29,13 +12,17 @@ import {
   RenderHeading4Element,
   RenderHeading5Element,
   RenderHeading6Element,
-} from "./Elements/HeadingElements";
-import { RenderBlockQuoteElement } from "./Elements/BlockQuoteElement";
-import { RenderBulletedListElement } from "./Elements/BulletedListElement";
-import { RenderNumberedListElement } from "./Elements/NumberedListElement";
-import { RenderTagElement } from "./Elements/TagElement";
-import { RenderParagraphElement } from "./Elements/ParagraphElement";
-import { RenderListItemElement } from "./Elements/ListItemElement";
+} from "./Elements/Headings/HeadingElements";
+import { RenderBlockQuoteElement } from "./Elements/BlockQuote/BlockQuoteElement";
+import { RenderBulletedListElement } from "./Elements/BulletedList/BulletedListElement";
+import { RenderNumberedListElement } from "./Elements/NumberedList/NumberedListElement";
+import { RenderTagElement } from "./Elements/Tag/TagElement";
+import { RenderParagraphElement } from "./Elements/Paragraph/ParagraphElement";
+import { RenderListItemElement } from "./Elements/ListItem/ListItemElement";
+import { RenderCheckListItemElement } from "./Elements/CheckList/CheckListItemElement";
+import { RenderEmbeddedStoryElement } from "./Elements/EmbeddedStory/EmbeddedStoryElement";
+import { RenderLinkElement } from "./Elements/Link/LinkElement";
+import { RenderMentionElement } from "./Elements/Mention/MentionElement";
 
 export const RenderEditableVoidElement = ({ attributes, children }) => (
   <div {...attributes}>{children}</div>
@@ -51,10 +38,10 @@ const elementRenderers: Partial<
 
   [ComponentType.Video]: RenderVideoElement,
 
-  [ComponentType.Mention]: RenderMentionElement,
   [ComponentType.EditableVoid]: RenderEditableVoidElement,
   [ComponentType.Paragraph]: RenderParagraphElement,
   [ComponentType.NumberedList]: RenderNumberedListElement,
+  [ComponentType.Mention]: RenderMentionElement,
 
   [ComponentType.CheckListItem]: RenderCheckListItemElement,
 
@@ -71,9 +58,9 @@ const elementRenderers: Partial<
   [ComponentType.ThematicBreak]: RenderThematicBreakElement,
 
   [ComponentType.Link]: RenderLinkElement,
-  [ComponentType.Image]: RenderImageElement,
-  [ComponentType.CodeBlock]: RenderCodeBlockElement,
-  [ComponentType.CodeBlockLine]: RenderCodeBlockLineElement,
+  //[ComponentType.Image]: RenderImageElement,
+  //[ComponentType.CodeBlock]: RenderCodeBlockElement,
+  //[ComponentType.CodeBlockLine]: RenderCodeBlockLineElement,
 
   /*
   [ComponentType.Table]: ({ attributes, children }) => (
@@ -119,7 +106,7 @@ export default function renderSlateElement({
   if (pluginElement) {
     return pluginElement;
   }
-
+  console.log("ksxkjd", editor.plugins);
   const renderer = elementRenderers[element.type];
 
   if (renderer) {

@@ -1,8 +1,9 @@
 export enum EnumStoryType {
   Tutorial = "Tutorial", // step-by-step teaching
-  Analogy = "Analogy", // concept explained via comparison
-  Mnemonic = "Mnemonic", // memory aid
-  Story = "Story", // narrative: anecdote, satire, memoir, fictional
+  Analogy = "Analogy", // real-world analogy
+  Mnemonic = "Mnemonic", //Clever mnemonics: Simple tricks and memory aids to understand complex ideas.
+  Anecdotes = "Anecdotes", //Real-life programming experiences,memoir about challenges and successes.
+  Story = "Story", // narrative: satire,  imaginative tales: fictional stories that bring abstract coding concepts to life.
 }
 
 export interface IAttribution {
@@ -28,7 +29,7 @@ export interface ICodingStory {
   author: IAuthor;
   category: string;
   comments: number;
-  content: string;
+  content: string; //markdown
   createdAt: string;
   embeddedStories?: IEmbeddedStory[];
   embedUrl?: string;

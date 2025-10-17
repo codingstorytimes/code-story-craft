@@ -3,55 +3,24 @@ import {
   Editor,
   Range,
   Transforms,
-  Descendant,
   Element as SlateElement,
   NodeEntry,
   Node,
 } from "slate";
+import { ReactEditor } from "slate-react";
 import {
-  ReactEditor,
-  RenderElementProps as SlateRenderElementProps,
-} from "slate-react";
-import { CustomEditor, CustomElement } from "../../slate";
-import { HistoryEditor } from "slate-history";
+  ComponentType,
+  CustomEditor,
+  RenderSlateElementProps,
+} from "../../slate";
+
 import { TableContextMenu } from "./TableContextMenu";
 import { EventEmitter } from "../EventEmitter";
-
-// --- Props for element renderer ---
-export interface RenderSlateElementProps
-  extends Omit<SlateRenderElementProps, "element"> {
-  element: CustomElement;
-  editor: CustomEditor;
-  viewMode?: "editor" | "read";
-}
-
-// -----------------------------
-// Constants for element types
-// -----------------------------
-export enum ComponentType {
-  Paragraph = "paragraph",
-  TableCell = "table-cell",
-  TableRow = "table-row",
-  Table = "table",
-}
-
-// -----------------------------
-// Types
-// -----------------------------
-export type TableCellElement = {
-  type: ComponentType.TableCell;
-  children: Descendant[];
-};
-
-export type TableRowElement = {
-  type: ComponentType.TableRow;
-  children: TableCellElement[];
-};
-
-export type TableElement = {
-  type: ComponentType.Table;
-  children: TableRowElement[];
-};
+import {
+  TableCellElement,
+  TableElement,
+  TableRowElement,
+} from "../../Elements/Table/Table";
 
 // -----------------------------
 // Define the extension interface
@@ -145,13 +114,11 @@ export interface TableEditor {
   onKeyDown?: (event: React.KeyboardEvent) => void;
 }
 
-export const withTable = <T extends CustomEditor>(editor: T): CustomEditor => {
+export const withTable = (editor: CustomEditor) => {
   const origOnChange = editor.onChange?.bind(editor);
   const origOnKeyDown = (editor as any).onKeyDown as
     | ((event: React.KeyboardEvent) => void)
     | undefined;
-
-  console.log(Object.keys(editor), "==wnmdwmn============");
 
   editor.table = { tableUtils: {} as TableUtils };
   editor.selectionEvents = editor.selectionEvents || new EventEmitter();
@@ -160,7 +127,7 @@ export const withTable = <T extends CustomEditor>(editor: T): CustomEditor => {
   editor.registerElement({
     type: ComponentType.Table,
     render: ({ attributes, children, element, editor }) => (
-      <TableContextMenu editor={editor as T} element={element}>
+      <TableContextMenu editor={editor} element={element}>
         <div {...attributes} className="my-4 overflow-x-auto">
           <table className="w-full border-collapse border border-gray-300 rounded-lg overflow-hidden">
             <tbody>{children}</tbody>
@@ -176,7 +143,7 @@ export const withTable = <T extends CustomEditor>(editor: T): CustomEditor => {
   editor.registerElement({
     type: ComponentType.TableCell,
     render: (props) => (
-      <TableCellWithSelection {...props} editor={props.editor as T} />
+      <TableCellWithSelection {...props} editor={props.editor} />
     ),
   });
 

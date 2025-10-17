@@ -1,20 +1,14 @@
 import React, { useMemo, useCallback, KeyboardEvent } from "react";
-import {
-  Descendant,
-  Editor,
-  Element as SlateElement,
-  Transforms,
-  Range,
-  Path,
-} from "slate";
-import { Slate, Editable, ReactEditor } from "slate-react";
-import { HistoryEditor } from "slate-history";
+import { Descendant } from "slate";
+import { Slate, Editable } from "slate-react";
 
 import RenderSlateElement, { RenderLeaf } from "./RenderSlateElement";
 
-import { ComponentType } from "./slate";
-import { createCustomEditor, toggleMark } from "./editorUtils";
-//import { allTools } from "./plugins/plugins";
+import { toggleMark } from "./editorUtils";
+
+import { HistoryEditor } from "slate-history";
+
+import { createCustomEditor, CustomEditor } from "./slate";
 
 interface SlateEditorCoreProps {
   value: Descendant[];
@@ -23,57 +17,10 @@ interface SlateEditorCoreProps {
   userId: string;
 }
 
-type CustomEditor = Editor & ReactEditor & HistoryEditor;
-
 const handleKeyDown = (editor: CustomEditor) => {
   return (event: KeyboardEvent) => {
     const { selection } = editor;
     if (!selection) return;
-
-    // Handle Backspace/Delete near image
-    if (
-      (event.key === "Backspace" || event.key === "Delete") &&
-      Range.isCollapsed(selection)
-    ) {
-      const point =
-        event.key === "Backspace"
-          ? Editor.before(editor, selection)
-          : Editor.after(editor, selection);
-      if (point) {
-        const nodeEntry = Editor.nodes(editor, {
-          at: point,
-          match: (n) =>
-            SlateElement.isElement(n) && n.type === ComponentType.Image,
-        }).next().value;
-
-        if (nodeEntry) {
-          event.preventDefault();
-          Transforms.removeNodes(editor, { at: nodeEntry[1] });
-          return;
-        }
-      }
-    }
-
-    // Tab in code block
-    const blockEntry = Editor.above(editor, {
-      at: selection,
-      match: (n) => SlateElement.isElement(n),
-    });
-
-if (
-      event.key === "Tab" &&
-      blockEntry &&
-      SlateElement.isElement(blockEntry[0]) &&
-      (blockEntry[0] as any).type === ComponentType.CodeBlock
-    ) {
-      event.preventDefault();
-      Transforms.insertText(editor, "    ");
-      return;
-    }
-
-    // Heading Enter handling
-    if (event.key === "Enter") {
-    }
 
     // Ctrl/Cmd shortcuts
     if (event.ctrlKey || event.metaKey) {

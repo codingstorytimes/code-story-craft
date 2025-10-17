@@ -1,42 +1,54 @@
-import { BaseEditor, Descendant } from "slate";
-import { HistoryEditor } from "slate-history";
-import { ReactEditor, RenderElementProps } from "slate-react";
+import { BaseEditor, createEditor, Descendant, Editor } from "slate";
+import { HistoryEditor, withHistory } from "slate-history";
+import { ReactEditor, RenderElementProps, withReact } from "slate-react";
 
-import type { BlockQuoteElement } from "./Elements/BlockQuoteElement";
-import type { BulletedListElement } from "./Elements/BulletedListElement";
-import type { CheckListItemElement } from "./Elements/CheckListItemElement";
-import type {
-  CodeBlockElement,
-  CodeBlockLineElement,
-} from "./Plugins/CodeBlock/CodeBlockElement";
+import type { BlockQuoteElement } from "./Elements/BlockQuote/BlockQuoteElement";
+import type { BulletedListElement } from "./Elements/BulletedList/BulletedListElement";
+import type { CheckListItemElement } from "./Elements/CheckList/CheckListItemElement";
+
 import type { EditableVoidElement } from "./Elements/EditableVoidElement";
-import type { EmbeddedStoryElement } from "./Plugins/EmbeddedStory/EmbeddedStoryPlugin";
 
-import type { HeadingElement } from "./Elements/HeadingElements";
+import type { HeadingElement } from "./Elements/Headings/HeadingElements";
 
-import type { ListItemElement } from "./Elements/ListItemElement";
-import type { MentionElement } from "./Plugins/Mention/MentionPlugin";
-import type { NumberedListElement } from "./Elements/NumberedListElement";
-import type { ParagraphElement } from "./Elements/ParagraphElement";
-import type { TagElement } from "./TagElement";
-import type { ThematicBreakElement } from "./Elements/ThematicBreakElement";
-import type { VideoElement } from "./VideoElement";
+import type { ListItemElement } from "./Elements/ListItem/ListItemElement";
+
+import type { NumberedListElement } from "./Elements/NumberedList/NumberedListElement";
+import type { ParagraphElement } from "./Elements/Paragraph/ParagraphElement";
+
+import type { ThematicBreakElement } from "./Elements/ThematicBreak/ThematicBreakElement";
+import type { VideoElement } from "./Elements/Video/VideoElement";
+
+import { PluginEditor, withPlugin } from "./Plugins/PluginEditor";
+
+import {
+  withCodeBlock,
+  type CodeBlockElement,
+  type CodeBlockLineElement,
+} from "./Plugins/CodeBlock/CodeBlockPlugin";
+import {
+  withEmbeddedStory,
+  type EmbeddedStoryElement,
+} from "./Plugins/EmbeddedStory/EmbeddedStoryPlugin";
+import {
+  withMentions,
+  type MentionElement,
+} from "./Plugins/Mention/MentionPlugin";
 
 import type {
   TableElement,
   TableRowElement,
   TableCellElement,
 } from "./Plugins/Table/TableElement";
-import { PluginEditor } from "./Plugins/PluginEditor";
-import { Underline } from "lucide-react";
-import { ImageElement } from "./Plugins/Image/ImagePlugin";
-import { LinkElement } from "./Elements/LinkElement";
-import { TableEditor } from "./Plugins/Table/TablePlugin";
+
+import { ImageElement, withImage } from "./Plugins/Image/ImagePlugin";
+import { LinkElement, withLinks } from "./Plugins/Link/LinkPlugin";
+import { TableEditor, withTable } from "./Plugins/Table/TablePlugin";
+import { TagElement } from "./Elements/Tag/TagElement";
 
 // Export all element types for slate-markdown
 export type {
   BlockQuoteElement,
-  BulletedListElement, 
+  BulletedListElement,
   CheckListItemElement,
   CodeBlockElement,
   CodeBlockLineElement,
@@ -50,7 +62,7 @@ export type {
   ThematicBreakElement,
   VideoElement,
   ImageElement,
-  LinkElement
+  LinkElement,
 };
 
 // ------------------------
@@ -203,4 +215,28 @@ export interface RenderSlateElementProps
   element: CustomElement;
   editor: CustomEditor;
   viewMode?: "editor" | "read";
+}
+
+/**
+ * Uses reduce to apply plugins from a list instead of nesting function calls.
+ * nesting: `let editor = withHistory(withReact(withPlugin(createEditor())));`
+ */
+export function createCustomEditor(): Editor & HistoryEditor {
+  const plugins = [
+    withPlugin,
+    withReact,
+    withHistory,
+    withLinks,
+    withEmbeddedStory,
+    withImage,
+    withMentions,
+    withTable,
+    withCodeBlock,
+  ];
+
+  const editor = plugins.reduce(
+    (acc, withEnhancer) => withEnhancer(acc),
+    createEditor()
+  );
+  return editor as CustomEditor;
 }

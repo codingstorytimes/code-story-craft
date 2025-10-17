@@ -11,20 +11,12 @@ import { withHistory, HistoryEditor } from "slate-history";
 import { ComponentType, CustomEditor, CustomText } from "./slate";
 import { withTable } from "./Plugins/Table/TablePlugin";
 import { withReact } from "slate-react";
-import { withMention } from "./Plugins/Mention/MentionPlugin";
+import { withMentions } from "./Plugins/Mention/MentionPlugin";
 import { withImage } from "./Plugins/Image/ImagePlugin";
 
 import { withPlugin } from "./Plugins/PluginEditor";
 import { withEmbeddedStory } from "./Plugins/EmbeddedStory/EmbeddedStoryPlugin";
-
-export function createCustomEditor(): Editor & HistoryEditor {
-  let editor = withHistory(withReact(withPlugin(createEditor())));
-  editor = withEmbeddedStory(
-    withImage(withMention(withTable(editor)))
-  ) as CustomEditor;
-
-  return editor;
-}
+import { withLinks } from "./Plugins/Link/LinkPlugin";
 
 export const isBlockActive = (editor: Editor, type: ComponentType) => {
   const [match] = Editor.nodes(editor, {

@@ -79,7 +79,7 @@ export default function StoryEditor({
   // Sync Slate value with markdown content
   const syncSlateFromMarkdown = useCallback((markdown: string) => {
     try {
-      const newSlateValue = markdown ? deserialize(markdown) : initialValue;
+      const newSlateValue = markdown ? deserialize(markdown) : slateValue;
       setSlateValue(newSlateValue);
       setParseError(null);
       return true;
